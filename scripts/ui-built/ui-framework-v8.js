@@ -1190,3 +1190,8 @@ styleTabButton(tabAbout, false);
 setActiveTab('explore');
 updateLayerPills();
 refreshMap();
+
+print('─── Las Vegas Valley Turf Tracker loaded ───');
+print('Click a census tract on the map to view statistics.');
+print('Change months with the dropdowns. Toggle split view on/off.');
+print('Use "+ Add to comparison" to collect tracts for the Compare tab.');
