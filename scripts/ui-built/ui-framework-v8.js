@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════
-// LAS VEGAS VALLEY TURF TRACKER — UI FRAMEWORK v6
+// LAS VEGAS VALLEY TURF TRACKER — UI FRAMEWORK v8
 // ═══════════════════════════════════════════════════════════════════════
 
 
@@ -207,9 +207,9 @@ function makeStatCard(label) {
 
 function styleTabButton(btn, active) {
   btn.style().set({
-    backgroundColor: active ? UI_COLORS.activeFill : UI_COLORS.inactiveFill,
-    color: active ? UI_COLORS.activeText : UI_COLORS.inactiveText,
-    border: '0px solid transparent',
+    backgroundColor: active ? '#E8F0F7' : UI_COLORS.inactiveFill,
+    color: active ? '#' + COLORS.primaryDark : UI_COLORS.inactiveText,
+    border: active ? '2px solid #' + COLORS.primary : '1px solid #' + COLORS.grayMid,
     padding: '8px 16px',
     margin: '0 6px 0 0',
     fontSize: '12px',
@@ -219,9 +219,9 @@ function styleTabButton(btn, active) {
 
 function stylePillButton(btn, active) {
   btn.style().set({
-    backgroundColor: active ? UI_COLORS.activeFill : UI_COLORS.inactiveFill,
-    color: active ? UI_COLORS.activeText : UI_COLORS.inactiveText,
-    border: '0px solid transparent',
+    backgroundColor: active ? '#E8F0F7' : UI_COLORS.inactiveFill,
+    color: active ? '#' + COLORS.primaryDark : UI_COLORS.inactiveText,
+    border: active ? '2px solid #' + COLORS.primary : '1px solid #' + COLORS.grayMid,
     padding: '6px 12px',
     margin: '2px 6px 2px 0',
     fontSize: '11px',
@@ -341,11 +341,14 @@ function makeLSTLegend(position) {
 }
 
 var leftLSTLegend = makeLSTLegend('bottom-left');
+var rightLSTLegend = makeLSTLegend('bottom-left');
 leftMap.add(leftLSTLegend);
+rightMap.add(rightLSTLegend);
 
 function updateLegendVisibility() {
   var showLegend = state.activeLayer === 'temperature';
   leftLSTLegend.style().set('shown', showLegend);
+  rightLSTLegend.style().set('shown', showLegend);
 }
 
 
@@ -353,7 +356,7 @@ function updateLegendVisibility() {
 
 var appTitle = ui.Label('Las Vegas Valley Turf Tracker', STYLES.appTitle);
 var appSubtitle = ui.Label(
-  'Urban turf change, surface heat, and water savings explorer',
+  'Urban turf change and surface heat explorer',
   STYLES.muted
 );
 
@@ -409,12 +412,12 @@ function makeLayerPill(label, key) {
   return btn;
 }
 
-var pillGreen = makeLayerPill('Greenness', 'greenspace');
-var pillTemp  = makeLayerPill('Heat', 'temperature');
-var pillWater = makeLayerPill('Water', 'watersavings');
+var pillGreen     = makeLayerPill('Greenness', 'greenspace');
+var pillTemp      = makeLayerPill('Heat', 'temperature');
+var pillSatellite = makeLayerPill('Satellite', 'satellite');
 
 function updateLayerPills() {
-  [pillGreen, pillTemp, pillWater].forEach(function(p) {
+  [pillGreen, pillTemp, pillSatellite].forEach(function(p) {
     var active = (p._key === state.activeLayer);
     stylePillButton(p, active);
   });
@@ -450,7 +453,7 @@ splitCheck.onChange(function(v) {
 var controlsPanel = ui.Panel([
   makeSectionTitle('Map controls'),
   ui.Label('Layer', STYLES.muted),
-  ui.Panel([pillGreen, pillTemp, pillWater], ui.Panel.Layout.flow('horizontal')),
+  ui.Panel([pillGreen, pillTemp, pillSatellite], ui.Panel.Layout.flow('horizontal')),
   makeSeparator(),
   ui.Label('Time period', STYLES.muted),
   ui.Panel([
@@ -469,7 +472,7 @@ var controlsPanel = ui.Panel([
 var promptPanel = ui.Panel([
   makeSectionTitle('Select an area'),
   ui.Label(
-    'Click any census tract on the map to view green space, temperature, water savings, and distribution charts.',
+    'Click any census tract on the map to view green space, temperature, and distribution charts.',
     {fontSize: '12px', color: COLORS.gray, whiteSpace: 'pre-wrap'}
   )
 ], null, STYLES.section);
@@ -550,11 +553,11 @@ var resetSelectionBtn = ui.Button('Reset selected tract', function() {
 });
 resetSelectionBtn.style().set({
   fontSize: '11px',
-  color: '#FFFFFF',
-  backgroundColor: '#' + COLORS.red,
+  color: '#' + COLORS.red,
+  backgroundColor: '#FFFFFF',
   margin: '4px 0 0 0',
   padding: '6px 8px',
-  border: '0px solid transparent'
+  border: '2px solid #' + COLORS.red
 });
 
 var trendPanel = ui.Panel([
@@ -930,14 +933,21 @@ function updateDistributionCharts(tractGeom) {
     maxPixels: 1e7
   }).setOptions({
     title: 'FVC distribution: ' + fromLabel + ' vs ' + toLabel,
-    hAxis: {title: 'FVC / NDVI proxy'},
+    hAxis: {
+      title: 'FVC / NDVI proxy',
+      format: '0.00',
+      textStyle: {fontSize: 9},
+      slantedText: true,
+      slantedTextAngle: 45,
+      gridlines: {count: 6}
+    },
     vAxis: {title: 'Pixel count'},
     series: {
       0: {color: '#8FBF73'},
       1: {color: '#1B5E20'}
     },
     legend: {position: 'top'},
-    chartArea: {left: 55, top: 40, width: '78%', height: '62%'},
+    chartArea: {left: 55, top: 40, width: '72%', height: '55%'},
     fontSize: 11
   });
 
@@ -948,14 +958,21 @@ function updateDistributionCharts(tractGeom) {
     maxPixels: 1e7
   }).setOptions({
     title: 'LST distribution: ' + fromLabel + ' vs ' + toLabel,
-    hAxis: {title: 'Temperature (°C)'},
+    hAxis: {
+      title: 'Temperature (°C)',
+      format: '#',
+      textStyle: {fontSize: 9},
+      slantedText: true,
+      slantedTextAngle: 45,
+      gridlines: {count: 6}
+    },
     vAxis: {title: 'Pixel count'},
     series: {
       0: {color: '#6BAED6'},
       1: {color: '#D95F0E'}
     },
     legend: {position: 'top'},
-    chartArea: {left: 55, top: 40, width: '78%', height: '62%'},
+    chartArea: {left: 55, top: 40, width: '72%', height: '55%'},
     fontSize: 11
   });
 
@@ -1052,22 +1069,48 @@ function updateSidePanel(tract) {
     var tDir    = lstChange > 0 ? 'warmer' : 'cooler';
 
     plainEnglish.setValue(
-      'Between ' + fromStr + ' and ' + toStr + ', this tract ' + dir +
-      ' about ' + turfLossAcres.toFixed(0) + ' acres of green cover (' +
-      Math.abs(fvcChangePct).toFixed(0) + '%). Surface temperature became ' +
-      Math.abs(lstChange).toFixed(1) + '°C ' + tDir + '.' +
-      (fvcChangePct < 0 ? ' Estimated water savings: ' + wLabel + '.' : '')
+      fromStr + '  →  ' + toStr + '\n\n' +
+      '🌿  Green cover ' + dir + ': ~' + turfLossAcres.toFixed(0) +
+      ' acres (' + Math.abs(fvcChangePct).toFixed(0) + '%)\n\n' +
+      '🌡️  Surface temperature: ' +
+      Math.abs(lstChange).toFixed(1) + '°C ' + tDir +
+      (fvcChangePct < 0
+        ? '\n\n💧  Est. water savings: ' + wLabel
+        : '')
     );
 
-    techContent.widgets().reset([ui.Label(
-      'Tract GEOID: ' + (v.geoid || '—') + '\n' +
-      'Area: ' + alandAcres.toFixed(1) + ' acres (' + (alandSqm / 1e6).toFixed(2) + ' km²)\n' +
-      'FVC: ' + fS.toFixed(4) + ' → ' + fE.toFixed(4) + '\n' +
-      'LST: ' + lS.toFixed(1) + '°C → ' + lE.toFixed(1) + '°C\n' +
-      'Water factor: 55.8 gal/sq.ft/yr\n\n' +
-      'Current note: FVC still uses NDVI proxy and can be replaced later with SMA outputs.',
-      {fontSize: '11px', color: COLORS.gray, whiteSpace: 'pre-wrap'}
-    )]);
+    var techLabelStyle = {fontSize: '11px', color: '#' + COLORS.gray, margin: '0', padding: '0'};
+    var techValueStyle = {fontSize: '11px', color: '#' + COLORS.black, margin: '0 0 4px 0', padding: '0'};
+    var techHeadStyle  = {fontSize: '11px', fontWeight: 'bold', color: '#' + COLORS.black, margin: '8px 0 2px 0', padding: '0'};
+
+    techContent.widgets().reset([
+      // — Tract identity
+      ui.Label('Tract', techHeadStyle),
+      ui.Label('GEOID:  ' + (v.geoid || '—'), techValueStyle),
+      ui.Label('Area:  ' + alandAcres.toFixed(1) + ' acres  (' + (alandSqm / 1e6).toFixed(2) + ' km²)', techValueStyle),
+
+      makeSeparator(),
+
+      // — Observed values
+      ui.Label('Observed values', techHeadStyle),
+      ui.Label('FVC (mean):  ' + fS.toFixed(4) + '  →  ' + fE.toFixed(4) + '  (Δ ' + fvcAbsChange.toFixed(4) + ')', techValueStyle),
+      ui.Label('LST (mean):  ' + lS.toFixed(1) + '°C  →  ' + lE.toFixed(1) + '°C  (Δ ' + lstChange.toFixed(1) + '°C)', techValueStyle),
+
+      makeSeparator(),
+
+      // — Data sources
+      ui.Label('Data sources', techHeadStyle),
+      ui.Label('Green space:  Sentinel-2 SR — NDVI proxy (to be replaced with SMA)', techLabelStyle),
+      ui.Label('Temperature:  Landsat 8 C2 L2 — surface temperature', techLabelStyle),
+      ui.Label('Water factor:  55.8 gal/sq.ft/yr (SNWA Xeriscape Conversion Study, 2000)', techLabelStyle),
+
+      makeSeparator(),
+
+      // — Caveats
+      ui.Label('Caveats', techHeadStyle),
+      ui.Label('LST is land surface temperature, not air temperature. Greenness loss does not confirm turf removal specifically.', 
+        {fontSize: '11px', color: '#' + COLORS.gray, margin: '0', padding: '0', whiteSpace: 'pre-wrap', fontStyle: 'italic'})
+    ]);
     
     // update in v6
     // refreshMap();
