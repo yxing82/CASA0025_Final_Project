@@ -2,7 +2,7 @@
   {
     "objectID": "readme.html",
     "href": "readme.html",
-    "title": "",
+    "title": "Las Vegas Valley Turf Tracker",
     "section": "",
     "text": "Use this repository to host a website for your CASA0025 final project by following these stpes:\n\nclone this repository\ninstall quarto\nedit the ‘index.qmd’ file with the contents of your project\nusing terminal, navigate to the project directory and run “quarto render”\npush the changes to your github repository\non github, navigate to Settings&gt;Pages&gt;Build and Deployment. Make sure that under “Source” it says “deploy from branch”. Under “Branch”, select “Main” in the first dropdown and “Docs” under the second drop down. Then press “Save”\n\nYour website should now be available under https://{your_username}.github.io/{your_repo_name}"
   },
