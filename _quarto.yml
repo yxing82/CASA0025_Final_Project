@@ -16,15 +16,14 @@ book:
   downloads: [pdf, epub]
   sharing: [twitter, facebook]
   favicon: favicon.ico
-  sidebar:
-    logo: casa_logo.png
   navbar:
     right:
       - icon: github
         href: "https://github.com/yxing82/CASA0025_Final_Project"
-
-
-
+        aria-label: GitHub
+  sidebar:
+    logo: casa_logo.png
+  
 format:
   html:
     theme:
