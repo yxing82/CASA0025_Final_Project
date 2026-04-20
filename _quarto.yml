@@ -1,13 +1,16 @@
 project:
   type: website
   output-dir: docs
+  resources: 
+    - images/ #add images in this folder
 
 book:
-  title: "CASA0025 Final Assessment"
+  title: "Las Vegas Valley Turf Tracker"
   author: "Group Name"
   date: "01/01/2024"
   chapters:
     - index.qmd
+  
 
   repo-actions: [edit]
   downloads: [pdf, epub]
@@ -15,6 +18,10 @@ book:
   favicon: favicon.ico
   sidebar:
     logo: casa_logo.png
+  navbar:
+    right:
+      - icon: github
+        href: "https://github.com/yxing82/CASA0025_Final_Project"
 
 
 

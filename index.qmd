@@ -1,4 +1,4 @@
-# CASA00025 Group Project Title Here
+# Las Vegas Valley Turf Tracker
 
 ## Project Summary 
 
@@ -30,7 +30,7 @@ Replace the link below with the link to your application.
 
 :::{.column-page}
 
-<iframe src='https://ollielballinger.users.earthengine.app/view/turkey-earthquake' width='100%' height='700px'></iframe>
+<iframe src='https://tribal-monolith-488411-r8.projects.earthengine.app/view/casa0025finalproject' width='100%' height='700px'></iframe>
 
 :::
 ## How it Works 
