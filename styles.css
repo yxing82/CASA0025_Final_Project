@@ -1,0 +1,23 @@
+/* remove blue background */
+.navbar {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* hide the title on the left */
+.navbar-brand,
+.navbar-title {
+  display: none !important;
+}
+
+/* keep only the icons visible */
+.navbar .navbar-nav {
+  margin-left: auto !important;
+}
+
+/* optional: make the top area tighter */
+.navbar {
+  padding-top: 0.4rem !important;
+  padding-bottom: 0.4rem !important;
+}

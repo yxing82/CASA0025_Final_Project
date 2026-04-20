@@ -4,27 +4,31 @@ project:
   resources: 
     - images/ #add images in this folder
 
-# book:
-website: 
+website:
   title: "Las Vegas Valley Turf Tracker"
-  # author: "Group Name"
-  # date: "01/01/2024"
-  # chapters:
-  #   - index.qmd
-  
-
-  # repo-actions: [edit]
-  # downloads: [pdf, epub]
-  # sharing: [twitter, facebook]
   favicon: favicon.ico
-  
   navbar:
     right:
       - icon: github
         href: "https://github.com/yxing82/CASA0025_Final_Project"
-  
   sidebar:
     logo: casa_logo.png
+
+
+# book:
+#   title: "Las Vegas Valley Turf Tracker"
+#   author: "Group Name"
+#   date: "01/01/2024"
+#   chapters:
+#     - index.qmd
+  
+
+#   repo-actions: [edit]
+#   downloads: [pdf, epub]
+#   sharing: [twitter, facebook]
+#   favicon: favicon.ico
+#   sidebar:
+#     logo: casa_logo.png
   
 format:
   html:
@@ -35,3 +39,4 @@ format:
     code-overflow: wrap
     highlight-style: monokai.theme
     linkcolor: "#34a832"
+    css: styles.css
