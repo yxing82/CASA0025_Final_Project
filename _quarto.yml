@@ -11,8 +11,8 @@ website:
     right:
       - icon: github
         href: "https://github.com/yxing82/CASA0025_Final_Project"
-  sidebar:
-    logo: casa_logo.png
+  # sidebar: # commented out to remove sidebar for now, can add back if needed
+  #   logo: casa_logo.png
 
 
 # book:
