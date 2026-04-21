@@ -10,7 +10,7 @@ What is the problem you’re trying to address using this application?
 
 ### End User 
 
-Who are you building this application for? How does it address a need this community has?
+This dashboard is designed for Las Vegas Valley residents, including those involved in ongoing litigation, who dispute the designation of their turf as "nonfunctional" under Nevada Assembly Bill 356 (2021). From the dashboard, tract-level satellite imagery and land surface temperature analysis allow plaintiffs to identify where green space has been lost and assess whether temperature has measurably risen in those areas. Plaintiffs can draw on this evidence to evaluate whether SNWA's designations align with observable on-the-ground conditions and to construct spatially data-backed arguments regarding the environmental, ecological and property-level impacts of non-functional turf removal across the Las Vegas Valley.
 
 ### Data
 
