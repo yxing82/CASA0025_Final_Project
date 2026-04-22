@@ -602,7 +602,7 @@ Against this background, the present project seeks to identify where non-functio
 The SMA model was selected based on similar research from [early SMA models](https://www.sciencedirect.com/science/article/pii/S0034425702001360) and our [region of interest](https://www.mdpi.com/2073-445X/7/4/135). Visual analysis reveals that the SMA model successfully identifies green space locations and changes over time. To assess the completeness of our SMA model more technically, we measure the root mean squared error (spectral RMSE) between every pixel’s true band distribution and SMA-constructed band distribution.
 
 $$
-RMSE = \sqrt{\frac{1}{7}\sum_{b=1}^{7}\left(\rho_{b}-\sum_{k=1}^{5}f_{k}\cdot e_{kb}\right)^{2}
+RMSE = \sqrt{\frac{1}{7}\sum_{b=1}^{7}\left(\rho_{b}-\sum_{k=1}^{5}f_{k}\cdot e_{kb}\right)^{2}}
 $$
 
 where, $e_{kb}$ is the reflectance of endmember $k$ in band $b$, and, for a given pixel, $\rho_{b}$ is the observed reflectance in spectral band $b$, and $f_{k}$ is the estimated fraction of endmember $k$ in the pixel.
