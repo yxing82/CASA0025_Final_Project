@@ -1,5 +1,6 @@
 ---
 title-block-banner: images/banner.png
+title: ""
 css: styles.css
 ---
 
@@ -62,6 +63,9 @@ An office park may cover a cluster of several Sentinel-2 pixels, a median strip 
 ![SMA model overview. The composition of each pixel is estimated using 5 endmembers: 1) green vegetation, 2) soil 3) dark impervious materials (e.g. asphalt), 4) bright impervious materials (e.g. concrete), and 5) regional impervious materials (e.g. terra cotta roofing).](images/SMA.png)
 
 #### FVC Estimation Code
+
+::: {.scroll-container style="overflow-y: scroll; height: 400px; padding:20px "}
+
 ```js
 // CONFIGURATION
  
@@ -317,15 +321,11 @@ print('Total RMSE:');
 print(totalRMSE.get('rmse'));
 
 ```
+:::
 
 ### Water Consumption
 
 In arid regions like Las Vegas, evapotranspiration (ET) serves as a strong proxy for water consumption: with minimal rainfall, almost all ET is the result of irrigation. ET is modeled by combining satellite-derived land surface temperature and vegetation indices with meteorological variables such as wind speed, humidity, and solar radiation. The resulting value measures the total flux of water from the land surface to the atmosphere through both soil evaporation and plant transpiration.
-
-ET Estimation Code
-```js
-RELEVANT WATER CONSUMPTION CODE HERE
-```
 
 ### Seasonal Analysis
 
@@ -365,6 +365,8 @@ Each layer is aggregated to both the study area and census tract level. When a t
 #### Quick Navigation
 
 At startup, the map displays the Las Vegas study area divided by census tracts. To streamline exploration across the area, the application provides a “Quick Navigation” dropdown, which allows users to jump to specific incorporated cities (like Henderson) or unincorporated Census-Designated Places (CDPs). Selecting a location automatically pans and scales the synchronized maps to the optimal zoom level.
+
+::: {.scroll-container style="overflow-y: scroll; height: 300px; padding:20px "}
 
 ``` js
 var LV_PLACES = [
@@ -409,10 +411,13 @@ var navPanel = ui.Panel([
  placeSelect
 ], null, STYLES.section);
 ```
+:::
 
 #### Interactive Tract Profiling
 
 Using the “Tract Profile” view, users can click any single tract to instantly generate a local profile. This triggers the UI to populate statistical cards (e.g. green space changes, surface temperature changes, water consumption changes) and dynamic distribution histograms, which calculate based on the selected time ranges.
+
+::: {.scroll-container style="overflow-y: scroll; height: 300px; padding:20px "}
 
 ```js
 function handleMapClick(coords) {
@@ -422,11 +427,14 @@ function handleMapClick(coords) {
 }
 leftMap.onClick(handleMapClick); rightMap.onClick(handleMapClick);
 ```
+:::
 
 #### Comparative Analysis
 
 Under the “Compare Tracts” tab, users can evaluate spatial disparities by selecting any two distinct tracts directly on the map. The application dynamically builds side-by-side statistical cards and overlays the monthly metrics of both tracts onto synchronized line charts, which allows for a direct visual comparison of their environmental trends
 
+
+::: {.scroll-container style="overflow-y: scroll; height: 300px; padding:20px "}
 
 ```js
  var fvcChart = ui.Chart.feature.byFeature({
@@ -457,9 +465,12 @@ Under the “Compare Tracts” tab, users can evaluate spatial disparities by se
    series: {0: {color: colorA, labelInLegend: 'Tract ' + geoidA}, 1: {color: colorB, labelInLegend: 'Tract ' + geoidB}},
    chartArea: {left: 60, top: 45, width: '76%', height: '56%'}, fontSize: 11});
 ```
+:::
  
 #### Temporal Split-Panel 
 To visually assess environmental shifts between any 2 selected months, the application features a synchronized split-screen map with a draggable divider for “start month” and “end month” comparisons
+
+::: {.scroll-container style="overflow-y: scroll; height: 300px; padding:20px "}
 
 ```js
 ui.root.clear();
@@ -506,9 +517,12 @@ var splitPanel = ui.SplitPanel({
 
 var mapContainer = ui.Panel([splitPanel], null, {stretch: 'both', backgroundColor: '#' + COLORS.white});
 ```
+:::
 
 #### Baseline Mode
 To make the analysis more robust, we account for natural weather fluctuations. Specifically, users can toggle “Seasonally adjusted data” from “Actual data”. This application then instantly switches the map and charts from raw data to data relative to the same month in 2019.
+
+::: {.scroll-container style="overflow-y: scroll; height: 300px; padding:20px "}
 
 ```js
 function refreshMap() {
@@ -576,6 +590,7 @@ function refreshMap() {
  updateLegendVisibility(); if (!mapInitialized) { leftMap.centerObject(roi, 11); mapInitialized = true; }
 }
 ```
+:::
 
 ## Appendix
 
@@ -587,9 +602,11 @@ Against this background, the present project seeks to identify where non-functio
 
 The SMA model was selected based on similar research from [early SMA models](https://www.sciencedirect.com/science/article/pii/S0034425702001360) and our [region of interest](https://www.mdpi.com/2073-445X/7/4/135). Visual analysis reveals that the SMA model successfully identifies green space locations and changes over time. To assess the completeness of our SMA model more technically, we measure the root mean squared error (spectral RMSE) between every pixel’s true band distribution and SMA-constructed band distribution.
 
-$$RMSE = \sqrt{\frac{1}{7}\sum_{b=1}^{7}\left(\rho_{b}-\sum_{k=1}^{5}f_{k}\cdot e_{kb}\right)^{2}$$
+$$
+RMSE = \sqrt{\frac{1}{7}\sum_{b=1}^{7}\left(\rho_{b}-\sum_{k=1}^{5}f_{k}\cdot e_{kb}\right)^{2}
+$$
 
-where, $e_{kb} is the reflectance of endmember $k$ in band $b$, and, for a given pixel, $\rho_{b}$ is the observed reflectance in spectral band $b$, and $f_{k}$ is the estimated fraction of endmember $k$ in the pixel.
+where, $e_{kb}$ is the reflectance of endmember $k$ in band $b$, and, for a given pixel, $\rho_{b}$ is the observed reflectance in spectral band $b$, and $f_{k}$ is the estimated fraction of endmember $k$ in the pixel.
 
 Across all months, the SMA model achieves a spectral RMSE of 0.011 for our reflectance values which have been scaled between 0 and 1. Past research has established a spectral RMSE threshold of 0.025 for acceptable SMA model coverage (Roberts et al. 1998), indicating that, even for a SMA model like ours with more endmembers, the model captures the spectral dimensionality of our area well.
 
