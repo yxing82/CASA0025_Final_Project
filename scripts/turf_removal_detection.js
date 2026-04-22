@@ -1,8 +1,8 @@
-// Polygons for SMA
-var em1_veg = 
-    /* color: #0ea20f */
-    /* shown: false */
-    ee.Geometry.MultiPolygon(
+// =============================================================================
+// POLYGONS FOR SMA
+// =============================================================================
+
+var em1_veg = /* color: #0ea20f */ee.Geometry.MultiPolygon(
         [[[[-115.11205570087684, 36.25633707945339],
            [-115.11170164928687, 36.25631977643101],
            [-115.11160508976234, 36.256233261261706],
@@ -50,10 +50,7 @@ var em1_veg =
            [-115.12502967434675, 36.26279292191337],
            [-115.12448250370771, 36.26277562032097],
            [-115.12448250370771, 36.263138952956496]]]]),
-    em2_npv = 
-    /* color: #89634f */
-    /* shown: false */
-    ee.Geometry.MultiPolygon(
+    em2_npv = /* color: #89634f */ee.Geometry.MultiPolygon(
         [[[[-115.06398942343063, 36.24628365684392],
            [-115.06368365160293, 36.24623174108613],
            [-115.06359245649642, 36.24663408730692],
@@ -66,10 +63,7 @@ var em1_veg =
            [-115.06119433979488, 36.247042703798854],
            [-115.06129358152843, 36.24716600238781],
            [-115.06184343437648, 36.247397457108455]]]]),
-    em3_bimp = 
-    /* color: #ffffd4 */
-    /* shown: false */
-    ee.Geometry.MultiPolygon(
+    em3_bimp = /* color: #ffffd4 */ee.Geometry.MultiPolygon(
         [[[[-115.08625339790109, 36.25866299035622],
            [-115.08333515449289, 36.256846206174984],
            [-115.082455389936, 36.25767674132911],
@@ -82,10 +76,7 @@ var em1_veg =
            [-115.10484267977444, 36.25137451876424],
            [-115.10329772738186, 36.251400474939175],
            [-115.1032333543655, 36.25367593276548]]]]),
-    em4_dimp = 
-    /* color: #7b8491 */
-    /* shown: false */
-    ee.Geometry.MultiPolygon(
+    em4_dimp = /* color: #7b8491 */ee.Geometry.MultiPolygon(
         [[[[-115.10406704993187, 36.20970736477652],
            [-115.10410996527611, 36.207893771144846],
            [-115.10391684622704, 36.207893771144846],
@@ -94,10 +85,7 @@ var em1_veg =
            [-115.05170260411285, 36.23769730325799],
            [-115.05127345067046, 36.23768432289598],
            [-115.05126808625243, 36.238082386350996]]]]),
-    em5_tcr = 
-    /* color: #e7b026 */
-    /* shown: false */
-    ee.Geometry.MultiPoint(
+    em5_tcr = /* color: #e7b026 */ee.Geometry.MultiPoint(
         [[-115.05505936407168, 36.24473610348597],
          [-115.05440758728106, 36.244917811964655],
          [-115.05360560678561, 36.24456737380606],
@@ -119,249 +107,383 @@ var em1_veg =
          [-115.1332141458562, 36.256929299972235],
          [-115.13224855061084, 36.257223448536294]]);
 
-// Load in Las Vegas Valley metro area boundary
-var lv_metro_boundary = ee.FeatureCollection('projects/lv-turf-removal/assets/lv_metro_boundary')
 
-// Create contour styling
-var boundary_style = {
-  color: '000000',
-  width: 2,
-  fillColor: '00000066'
+// =============================================================================
+// CONFIGURATION
+// =============================================================================
+ 
+var startYear = 2019;
+var startMonth = 1;
+var endYear = 2026;
+var endMonth = 3;
+var baselineYear = 2019;
+ 
+var bands = ['B2', 'B3', 'B4', 'B8', 'B8A', 'B11', 'B12'];
+ 
+// Reference image date range (for endmember extraction)
+var refStartDate = ee.Date.fromYMD(2022, 6, 1);
+var refEndDate = ee.Date.fromYMD(2022, 7, 1);
+
+// =============================================================================
+// LOAD BOUNDARY
+// =============================================================================
+ 
+var lv_metro_boundary = ee.FeatureCollection('projects/lv-turf-removal/assets/lv_metro_boundary');
+
+// =============================================================================
+// HELPER FUNCTIONS
+// =============================================================================
+ 
+/**
+ * Masks clouds, cirrus, and cloud shadows from Sentinel-2 imagery
+ * Uses QA60 band for clouds/cirrus and SCL band for cloud shadows
+ */
+function maskS2clouds(image) {
+  // QA60 band for clouds and cirrus
+  var qa = image.select('QA60');
+  var cloudBitMask = 1 << 10;
+  var cirrusBitMask = 1 << 11;
+ 
+  var qaMask = qa.bitwiseAnd(cloudBitMask).eq(0)
+      .and(qa.bitwiseAnd(cirrusBitMask).eq(0));
+  
+  // SCL band for cloud shadows (and optionally other classes)
+  // SCL values: 3 = cloud shadow, 8 = cloud medium prob, 9 = cloud high prob, 10 = cirrus
+  var scl = image.select('SCL');
+  var sclMask = scl.neq(3)   // cloud shadow
+      .and(scl.neq(8))       // cloud medium probability
+      .and(scl.neq(9))       // cloud high probability
+      .and(scl.neq(10));     // cirrus
+  
+  // Combine both masks
+  var combinedMask = qaMask.and(sclMask);
+ 
+  return image.updateMask(combinedMask).divide(10000);
+}
+ 
+/**
+ * Gets median spectral profile for a geometry from the reference image
+ */
+var getProfile = function(geometry, refImg) {
+  var dict = refImg.reduceRegion({
+    reducer: ee.Reducer.median(),
+    geometry: geometry,
+    scale: 10,
+    maxPixels: 1e9
+  });
+  return bands.map(function(b) { return dict.get(b); });
 };
+ 
+/**
+ * Performs spectral unmixing and calculates RMSE
+ */
+function unmixWithRMSE(img, endmembers) {
+  var unmixed = img.unmix(endmembers, true, true)
+    .rename(['veg', 'npv', 'bimp', 'dimp', 'tcr']);
+    
+  // RMSE calculation
+  var fractionArray = unmixed.toArray().toArray(1);
+  var endmemberArray = ee.Array(endmembers).transpose();
+  
+  var reconstructedArray = ee.Image(endmemberArray).matrixMultiply(fractionArray);
+  var reconstructed = reconstructedArray
+    .arrayProject([0])
+    .arrayFlatten([bands]);
+    
+  var error = img.subtract(reconstructed).pow(2);
+  var rmse = error.reduce(ee.Reducer.mean()).sqrt().rename('rmse');
+  
+  return unmixed.addBands(rmse);
+}
 
-// Add boundary layer
-Map.addLayer(lv_metro_boundary.style(boundary_style), {}, 'Las Vegas Boundary');
-
-// Add NAIP to compare endmember selections against
-var naipDataset = ee.ImageCollection('USDA/NAIP/DOQQ')
-                  .filter(ee.Filter.date('2022-06-01', '2022-06-30'));
-var naipColor = naipDataset.mosaic().clip(lv_metro_boundary).select(['R', 'G', 'B']);
-var napColorVis = {
-  min: 0,
-  max: 255,
-};
-
-// Map.addLayer(naipColor, napColorVis, 'NAIP');
-
-// testing dates
-var startYear = 2021;
-var startMonth = 5;
-var endYear = 2021;
-var endMonth = 9;
-
+// =============================================================================
+// CREATE MONTHLY COMPOSITES
+// =============================================================================
+ 
 var startDate = ee.Date.fromYMD(startYear, startMonth, 1);
 var endDate = ee.Date.fromYMD(endYear, endMonth, 1);
 var nMonths = endDate.difference(startDate, 'month').round();
-
-// Load and filter Sentinel-2 pixels
-function maskS2clouds(image) {
-
-  var qa = image.select('QA60');
-
-  var cloudBitMask = 1 << 10;
-
-  var cirrusBitMask = 1 << 11;
-
-  var mask = qa.bitwiseAnd(cloudBitMask).eq(0)
-
-      .and(qa.bitwiseAnd(cirrusBitMask).eq(0));
-
-  return image.updateMask(mask).divide(10000);
-
-}
-
-// Create median monthly composites and clip it to the boundary
-var monthlyComposites = ee.ImageCollection.fromImages(
+ 
+// Create a fully masked placeholder image with correct band structure
+var maskedPlaceholder = ee.Image.constant(ee.List.repeat(0, bands.length))
+  .rename(bands)
+  .updateMask(0)
+  .clip(lv_metro_boundary);
+ 
+// Create raw monthly composites (may have gaps due to clouds)
+var rawMonthlyComposites = ee.ImageCollection.fromImages(
   ee.List.sequence(0, nMonths).map(function(n) {
     var currentStart = startDate.advance(n, 'month');
     var currentEnd = currentStart.advance(1, 'month');
     
-    var composite = ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
+    var collection = ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
       .filterBounds(lv_metro_boundary)
       .filterDate(currentStart, currentEnd)
       .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 20))
-      .map(maskS2clouds)
-      .median()
-      .clip(lv_metro_boundary);
+      .map(maskS2clouds);
+    
+    // Check if collection has any images
+    var hasImages = collection.size().gt(0);
+    
+    // Use median composite if images exist, otherwise use masked placeholder
+    var composite = ee.Image(ee.Algorithms.If(
+      hasImages,
+      collection.median().select(bands).clip(lv_metro_boundary),
+      maskedPlaceholder
+    ));
       
-    return composite
-      .set('month', currentStart.get('month'))
-      .set('year', currentStart.get('year'))
-      .set('system:time_start', currentStart.millis());
+    return composite.set({
+      'month': currentStart.get('month'),
+      'year': currentStart.get('year'),
+      'system:time_start': currentStart.millis()
+    });
   })
 );
 
-// Convert to a list so we can iterate index-by-index
-var compositeList = monthlyComposites.toList(monthlyComposites.size());
-
-// Iterate through the list, carrying forward the last known good image.
-// The accumulator is the *gap-filled* image from the previous step.
-var filled = ee.List(
+// =============================================================================
+// GAP-FILL MISSING MONTHS (carry forward values from previous month)
+// =============================================================================
+ 
+var compositeList = rawMonthlyComposites.toList(rawMonthlyComposites.size());
+ 
+var filledList = ee.List(
   ee.List.sequence(0, nMonths).iterate(function(n, acc) {
     n = ee.Number(n);
     acc = ee.List(acc);
-
+ 
     var current = ee.Image(compositeList.get(n));
-
-    // If this is the very first image, there is nothing to fill from —
-    // just use it as-is (masked pixels stay masked).
-    var previous = ee.Algorithms.If(
-      n.gt(0),
-      ee.Image(acc.get(n.subtract(1))),  // last gap-filled image
-      null
-    );
-
+    
+    // Check if current image has ANY valid pixels
+    var validPixelCount = current.select(0).reduceRegion({
+      reducer: ee.Reducer.count(),
+      geometry: lv_metro_boundary,
+      scale: 1000,  // Coarse scale for efficiency
+      maxPixels: 1e6
+    }).get(bands[0]);
+    
+    var hasValidPixels = ee.Number(validPixelCount).gt(0);
+ 
     var filled = ee.Algorithms.If(
       n.gt(0),
-      // Where current has valid data use it; elsewhere borrow from previous.
-      current.unmask(ee.Image(previous)),
+      ee.Algorithms.If(
+        hasValidPixels,
+        // Current has some valid pixels: fill any remaining gaps with previous
+        current.unmask(ee.Image(acc.get(n.subtract(1)))),
+        // Current is entirely empty: use previous month entirely
+        ee.Image(acc.get(n.subtract(1)))
+      ),
       current
     );
-
+ 
     return acc.add(ee.Image(filled));
   }, ee.List([]))
 );
-
-// Wrap back into an ImageCollection, preserving all metadata
+ 
+// Reconstruct ImageCollection with preserved metadata
 var monthlyComposites = ee.ImageCollection.fromImages(
   ee.List.sequence(0, nMonths).map(function(n) {
-    var filledImg = ee.Image(filled.get(n));
+    var filledImg = ee.Image(filledList.get(n));
     var originalImg = ee.Image(compositeList.get(n));
     
     return filledImg.copyProperties(originalImg, ['month', 'year', 'system:time_start']);
   })
 );
 
-// Get the first and last month
-var firstImg = monthlyComposites.sort('system:time_start').first();
-var lastImg = monthlyComposites.sort('system:time_start', false).first();
-
-// Define Visualization parameters
-var s2visParams = {bands: ['B4', 'B3', 'B2'], min: 0, max: 0.3, gamma: 1.4};
-
-// Add them to the Map
-Map.addLayer(firstImg, s2visParams, 'S2 First Month');
-Map.addLayer(lastImg, s2visParams, 'S2 Last Month');
-
-
-// // FVC COMPUTATION
-
-// Band selection and reference image
-var bands = ['B2', 'B3', 'B4', 'B8', 'B8A', 'B11', 'B12'];
-
-var refstartDate = ee.Date.fromYMD(2022, 6, 1);
-var refendDate = ee.Date.fromYMD(2022, 7, 1);
-
+// =============================================================================
+// CREATE REFERENCE IMAGE AND ENDMEMBERS
+// =============================================================================
+ 
 var referenceImg = ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
   .filterBounds(lv_metro_boundary)
-  .filterDate(refstartDate, refendDate)
+  .filterDate(refStartDate, refEndDate)
   .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 20))
   .map(maskS2clouds)
   .median()
-  .clip(lv_metro_boundary)
-  .select(bands);
-
-// function to get median spectral profile
-var getProfile = function(geometry) {
-  var dict = referenceImg.reduceRegion({
-    reducer: ee.Reducer.median(),
-    geometry: geometry,
-    scale: 10,
-    maxPixels: 1e9
-  });
-  // Ensure the values are in the same order as the bands array
-  return bands.map(function(b) { return dict.get(b); });
-};
-
-// Create the list of endmembers
+  .select(bands)
+  .clip(lv_metro_boundary);
+ 
+// em1_veg, em2_npv, etc.
 var endmembers = [
-  getProfile(em1_veg),
-  getProfile(em2_npv),
-  getProfile(em3_bimp),
-  getProfile(em4_dimp),
-  getProfile(em5_tcr)
+  getProfile(em1_veg, referenceImg),
+  getProfile(em2_npv, referenceImg),
+  getProfile(em3_bimp, referenceImg),
+  getProfile(em4_dimp, referenceImg),
+  getProfile(em5_tcr, referenceImg)
 ];
 
-// Perform Spectral Mixture Analysis over the entire collection
-var unmixed = referenceImg.unmix(endmembers, true, true);
-
+// =============================================================================
+// SPECTRAL UNMIXING WITH RMSE
+// =============================================================================
+ 
 var unmixedCollection = monthlyComposites.map(function(img) {
-  var unmixed = img.select(bands).unmix(endmembers, true, true)
-    .rename(['veg', 'npv', 'bimp', 'dimp', 'tcr']);
-  
-  return unmixed.copyProperties(img, ['system:time_start', 'month', 'year']);
+  return unmixWithRMSE(img, endmembers)
+    .copyProperties(img, ['system:time_start', 'month', 'year']);
 });
 
-// Plot first and final month
-var firstMonth = unmixedCollection.sort('system:time_start').first();
-var lastMonth = unmixedCollection.sort('system:time_start', false).first();
-var visVeg = {min: 0, max: 1, palette: ['black', 'blue', 'cyan', 'yellow', 'white']};
+// =============================================================================
+// CALCULATE VEGETATION DIFFERENCE FROM BASELINE
+// =============================================================================
+ 
+var baselineCollection = unmixedCollection.filter(ee.Filter.eq('year', baselineYear));
+ 
+var monthJoin = ee.Join.saveFirst({ matchKey: 'baseline_img' });
+var filterByMonth = ee.Filter.equals({ leftField: 'month', rightField: 'month' });
+ 
+var joinedCollection = ee.ImageCollection(
+  monthJoin.apply(unmixedCollection, baselineCollection, filterByMonth)
+);
+ 
+var diffCollection = joinedCollection.map(function(img) {
+  var currentImg = ee.Image(img);
+  var baselineImg = ee.Image(currentImg.get('baseline_img'));
+  
+  var currentVeg = currentImg.select('veg');
+  var baselineVeg = baselineImg.select('veg');
+  
+  var diff = currentVeg.subtract(baselineVeg).rename('veg_diff');
+  
+  return currentImg.addBands(diff);
+});
 
-Map.addLayer(firstMonth.select('veg'), visVeg, 'Veg % (First Month)');
-Map.addLayer(lastMonth.select('veg'), visVeg, 'Veg % (Last Month)');
+// =============================================================================
+// COMPUTE MONTHLY AVERAGE RMSE
+// =============================================================================
+ 
+var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+ 
+// Calculate mean RMSE for each calendar month (1-12) across all years
+var monthlyRMSEValues = ee.List.sequence(1, 12).map(function(month) {
+  var monthImages = unmixedCollection.filter(ee.Filter.eq('month', month));
+  var meanRMSE = monthImages.select('rmse').mean();
+  
+  return meanRMSE.reduceRegion({
+    reducer: ee.Reducer.mean(),
+    geometry: lv_metro_boundary,
+    scale: 100,
+    maxPixels: 1e9
+  }).get('rmse');
+});
+ 
+// Create ordered dictionary (Jan -> Dec)
+var monthlyRMSEDict = ee.Dictionary.fromLists(monthNames, monthlyRMSEValues);
+print('Monthly RMSE:');
+print(monthlyRMSEDict);
+ 
+// Calculate total (overall) RMSE across all images
+var totalRMSE = unmixedCollection.select('rmse').mean().reduceRegion({
+  reducer: ee.Reducer.mean(),
+  geometry: lv_metro_boundary,
+  scale: 100,
+  maxPixels: 1e9
+});
+print('Total RMSE:');
+print(totalRMSE.get('rmse'));
 
+// =============================================================================
+// PREPARE VISUALIZATION PARAMETERS
+// =============================================================================
+ 
+var boundaryStyle = {
+  color: '000000',
+  width: 2,
+  fillColor: '00000066'
+};
+ 
+var naipColorVis = { min: 0, max: 255 };
+var s2visParams = { bands: ['B4', 'B3', 'B2'], min: 0, max: 0.3, gamma: 1.4 };
+var visVeg = { min: 0, max: 1, palette: ['black', 'blue', 'cyan', 'yellow', 'white'] };
+var visVegDiff = { min: -1, max: 1, palette: ['blue', 'white', 'red'] };
+var rmseVis = { min: 0, max: 0.05, palette: ['blue', 'white', 'red'] };
 
-// Exporting to assets
+// =============================================================================
+// PREPARE LAYERS
+// =============================================================================
+ 
+// NAIP imagery
+var naipDataset = ee.ImageCollection('USDA/NAIP/DOQQ')
+  .filter(ee.Filter.date('2022-06-01', '2022-06-30'));
+var naipColor = naipDataset.mosaic().clip(lv_metro_boundary).select(['R', 'G', 'B']);
+ 
+// Sentinel-2 first and last months
+var firstS2 = monthlyComposites.sort('system:time_start').first();
+var lastS2 = monthlyComposites.sort('system:time_start', false).first();
+ 
+// Vegetation analysis first and last months
+var firstMonth = diffCollection.sort('system:time_start').first();
+var lastMonth = diffCollection.sort('system:time_start', false).first();
 
-// First, the S-2 images
-// var compositeList = monthlyComposites.toList(monthlyComposites.size());
+// =============================================================================
+// ADD MAP LAYERS
+// =============================================================================
+ 
+// Center map
+Map.centerObject(lv_metro_boundary, 11);
+ 
+// --- Boundary ---
+Map.addLayer(lv_metro_boundary.style(boundaryStyle), {}, 'Las Vegas Boundary');
+ 
+// --- Base imagery ---
+Map.addLayer(naipColor, naipColorVis, 'NAIP 2022', false);
+ 
+// --- Sentinel-2 composites ---
+Map.addLayer(firstS2, s2visParams, 'S2 First Month', false);
+Map.addLayer(lastS2, s2visParams, 'S2 Last Month', false);
+ 
+// --- Vegetation fraction ---
+Map.addLayer(firstMonth.select('veg'), visVeg, 'Veg % (First Month)', false);
+Map.addLayer(lastMonth.select('veg'), visVeg, 'Veg % (Last Month)', false);
+ 
+// --- Vegetation difference from baseline ---
+Map.addLayer(firstMonth.select('veg_diff'), visVegDiff, 'Veg Diff (First Month)', false);
+Map.addLayer(lastMonth.select('veg_diff'), visVegDiff, 'Veg Diff (Last Month)', false);
+ 
+// --- RMSE ---
+Map.addLayer(unmixedCollection.first().select('rmse'), rmseVis, 'RMSE First Month', false);
 
-// compositeList.evaluate(function(list) {
-//   list.forEach(function(img, index) {
-//     var image = ee.Image(compositeList.get(index))
-    
-//     // Get the month and year
-//     var month = img.properties.month;
-//     var year = img.properties.year;
-    
-//     // Create a clean name for the asset: e.g., "Comp_2024_05"
-//     // pad the month with a leading zero if needed
-//     var monthStr = month < 10 ? '0' + month : month;
-//     var assetName = 'Comp_' + year + '_' + monthStr;
-    
-//     var exportImg = image.select(['B4', 'B3', 'B2']);
-
-//     Export.image.toAsset({
-//       image: exportImg,
-//       description: 'Export_' + assetName,
-//       assetId: 'projects/lv-turf-removal/assets/s2/' + assetName,
-//       scale: 10,
-//       region: lv_metro_boundary,
-//       maxPixels: 1e13
-//     });
-//   });
-// });
-
-// Turf % images
-
-// var unmixedList = unmixedCollection.toList(unmixedCollection.size());
-
-// unmixedList.evaluate(function(list) {
-//   list.forEach(function(img, index) {
-    
-//     var image = ee.Image(unmixedList.get(index))
-    
-//     // Select the specific veg band (from the previous unmix step)
-//     var exportImg = image.select('veg');
-
-//     // Extract properties from the 'imgInfo' object
-//     var month = img.properties.month;
-//     var year = img.properties.year;
-    
-//     // Format month and name
-//     var monthStr = month < 10 ? '0' + month : month;
-//     var assetName = 'veg_comp_' + year + '_' + monthStr;
-
-//     // Export
-//     Export.image.toAsset({
-//       image: exportImg,
-//       description: 'Export_' + assetName,
-//       assetId: 'projects/lv-turf-removal/assets/turf_loss/' + assetName,
-//       scale: 10,
-//       region: lv_metro_boundary, 
-//       maxPixels: 1e13
-//     });
+// =============================================================================
+// EXPORT TO ASSETS
+// =============================================================================
+ 
+// // Set the year to export
+// var exportYear = 2019;
+ 
+// // Filter collections to the export year
+// var s2ToExport = monthlyComposites.filter(ee.Filter.eq('year', exportYear));
+// var vegToExport = diffCollection.filter(ee.Filter.eq('year', exportYear));
+ 
+// var exportList = vegToExport.toList(vegToExport.size());
+// var numImages = vegToExport.size().getInfo();
+ 
+// for (var i = 0; i < numImages; i++) {
+//   var img = ee.Image(exportList.get(i));
+  
+//   // Get month for naming
+//   var month = img.get('month').getInfo();
+//   var monthStr = (month < 10) ? '0' + month : '' + month;
+  
+//   // Export S2 RGB (B4, B3, B2)
+//   var s2Rgb = s2ToExport.filter(ee.Filter.eq('month', month))
+//     .first()
+//     .select(['B4', 'B3', 'B2']);
+  
+//   Export.image.toAsset({
+//     image: s2Rgb,
+//     description: 's2_' + exportYear + '_' + monthStr,
+//     assetId: 'projects/lv-turf-removal/assets/s2/s2_' + exportYear + '_' + monthStr,
+//     region: lv_metro_boundary,
+//     scale: 10,
+//     maxPixels: 1e13
 //   });
   
-//   print('Tasks have been added to the Tasks tab.');
-// });
+//   // Export vegetation fractions (veg and veg_diff)
+//   var vegImg = img.select(['veg', 'veg_diff']);
+  
+//   Export.image.toAsset({
+//     image: vegImg,
+//     description: 'fvc_' + exportYear + '_' + monthStr,
+//     assetId: 'projects/lv-turf-removal/assets/turf_loss/fvc_' + exportYear + '_' + monthStr,
+//     region: lv_metro_boundary,
+//     scale: 10,
+//     maxPixels: 1e13
+//   });
+// }
