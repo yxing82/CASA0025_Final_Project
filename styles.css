@@ -1,44 +1,98 @@
-/* ---------- General Layout and Background ---------- */
+/* ---------- Navbar with image ---------- */
+#quarto-header .navbar {
+    background-image: url("images/banner.jpeg");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    min-height: 280px;
+    border: none;
+    box-shadow: none;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+/* dark overlay so nav text stays readable */
+#quarto-header .navbar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.22);
+    pointer-events: none;
+}
+
+#quarto-header .navbar .container-fluid,
+#quarto-header .navbar .container-xxl {
+    position: relative;
+    z-index: 1;
+}
+
+/* navbar text/icons on top of image */
+#quarto-header .navbar-brand,
+#quarto-header .navbar .nav-link,
+#quarto-header .navbar .navbar-title,
+#quarto-header .navbar .menu-text,
+#quarto-header .navbar .bi,
+#quarto-header .navbar .navbar-toggler {
+    color: #ffffff !important;
+}
+
+#quarto-header .navbar .nav-link:hover,
+#quarto-header .navbar .navbar-brand:hover,
+#quarto-header .navbar .menu-text:hover {
+    color: #f3efe6 !important;
+    text-decoration: none;
+}
+
+#quarto-header .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* ---------- keep built-in light/dark mode working ---------- */
+/* Do NOT hardcode page background/text colors globally */
 body {
-    background-color: #f3efe6; /* Warm sand background */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-    color: #3b322c; /* Rich bark brown */
     line-height: 1.7;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* ---------- Main content spacing ---------- */
+main.content,
+#quarto-content {
+    padding-top: 2rem;
 }
 
 /* ---------- Headings ---------- */
 h1, .h1 {
-    color: #3b322c; /* Bark brown */
     font-size: 3rem;
     font-weight: 700;
 }
 
 h2, .h2 {
-    color: #5a5d3c; /* Olive green */
     font-size: 2.2rem;
     font-weight: 600;
+    color: #5a5d3c;
 }
 
 h3, .h3 {
-    color: #7b7f5f; /* Sage green */
     font-size: 1.6rem;
     font-weight: 500;
+    color: #7b7f5f;
 }
 
 /* ---------- Links ---------- */
 a {
-    color: #5a5d3c; /* Olive green */
+    color: #5a5d3c;
     text-decoration: none;
     font-weight: 500;
 }
 
-a:hover,
-a:visited {
-    color: #9c8b70; /* Clay brown on hover */
+a:hover {
+    color: #9c8b70;
     text-decoration: underline;
 }
 
-/* ---------- Sidebar TOC Styles ---------- */
+/* ---------- Sidebar TOC ---------- */
 .sidebar nav[role=doc-toc] ul > li > a.active,
 .sidebar nav[role=doc-toc] ul > li > ul > li > a.active,
 .sidebar nav[role=doc-toc] ul > li > a:hover,
@@ -48,46 +102,20 @@ a:visited {
     padding-left: 8px;
 }
 
-/* ---------- Title Banner ---------- */
-#title-block-header {
-    width: 100%;
-}
-
-.quarto-title-block .quarto-title-banner {
-    height: 60vh;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-#title-block-header.quarto-title-block.default .quarto-title .title {
-    color: #ffffff; /* Pure white for contrast */
-    text-align: center;
-    font-size: 4.5rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* Optional for readability */
-}
-
 /* ---------- Footer ---------- */
 .footer-items .nav-link {
     color: #5a5d3c !important;
     font-size: 0.95rem;
 }
 
-/* ---------- Optional Enhancements ---------- */
+/* ---------- Paragraphs ---------- */
 p {
     font-size: 1.1rem;
 }
 
+/* ---------- Inline Code ---------- */
 code {
-    background-color: #e7e1d3;
+    background-color: rgba(231, 225, 211, 0.6);
     padding: 0.2em 0.4em;
     border-radius: 4px;
     font-family: ui-monospace, "SF Mono", "Roboto Mono", "Courier New", monospace;
@@ -100,7 +128,6 @@ table {
     border-spacing: 0;
     margin: 24px 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-    background-color: #fdfcf9;
     border: 1px solid #ccc0ad;
     border-radius: 8px;
     overflow: hidden;
@@ -111,8 +138,7 @@ th, td {
     padding: 14px 16px;
     vertical-align: middle;
     text-align: center;
-    border-bottom: 1px solid #e1d9c7;
-    color: #3b322c;
+    border-bottom: 1px solid rgba(225, 217, 199, 0.8);
 }
 
 th {
@@ -128,9 +154,14 @@ td.description {
 }
 
 tr:nth-child(even) {
-    background-color: #f6f3ee;
+    background-color: rgba(246, 243, 238, 0.7);
 }
 
 tr:hover {
-    background-color: #f0e9dc;
+    background-color: rgba(240, 233, 220, 0.9);
+}
+
+/* ---------- Hide empty page title block if Quarto still renders one ---------- */
+#title-block-header {
+    display: none !important;
 }
