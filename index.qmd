@@ -1,55 +1,596 @@
-# Las Vegas Valley Turf Tracker
+---
+title-block-banner: images/banner.png
+css: styles.css
+---
 
-## Project Summary 
+## Project Summary
 
-Fill in the sections below to provide a brief summary of your project. Each section should have no more than 100 words. Do not edit any of the headings.
+This project develops an interactive web application to assess green space loss and related environmental impacts in the Las Vegas Valley. In the context of recent tension around regional policy to remove “nonfunctional” turf, the application visualizes local changes in green space alongside shifts in land surface temperature and water consumption. A map-based dashboard enables tract-level exploration of spatial patterns and temporal change. By linking policy implementation to measurable landscape changes, the project directly supports more informed evaluation of its impact on water conservation and environmental conditions.
 
-### Problem Statement 
+## Problem Statement
 
-What is the problem you’re trying to address using this application? 
+The Colorado River Basin, a system providing water to millions across the southwestern US, is [in crisis](https://wires.onlinelibrary.wiley.com/doi/10.1002/wat2.1672): runoff into the basin continues to decline while consumption levels remain constant. To reduce water consumption across the Las Vegas Valley, [Assembly Bill 356](https://legiscan.com/NV/bill/AB356/2021) was passed in 2021, prohibiting the use of water from the basin to irrigate “[nonfunctional” turf](https://www.snwa.com/assets/pdf/water-resource-plan-appendices-2026.pdf) (green space with no clear purpose) by the start of 2027. In January 2026, a group of residents [sued](https://news3lv.com/resources/pdf/ea5538b8-1ef6-4872-8e0d-fc450e051355-A26937025CComplaintCOMPCIV.pdf) the Southwestern Nevada Water Authority (SNWA), claiming that the removal of these green spaces have led to negative downstream environmental effects. The consequences of the policy remain poorly documented, creating a gap between regulatory action and observable evidence.
 
-### End User 
+## End User
 
-This dashboard is designed for Las Vegas Valley residents, including those involved in ongoing litigation, who dispute the designation of their turf as "nonfunctional" under Nevada Assembly Bill 356 (2021). From the dashboard, tract-level satellite imagery and land surface temperature analysis allow plaintiffs to identify where green space has been lost and assess whether temperature has measurably risen in those areas. Plaintiffs can draw on this evidence to evaluate whether SNWA's designations align with observable on-the-ground conditions and to construct spatially data-backed arguments regarding the environmental, ecological and property-level impacts of non-functional turf removal across the Las Vegas Valley.
+This dashboard is designed for Las Vegas Valley policymakers and residents, including those involved in [ongoing](https://www.reviewjournal.com/news/civil-courts/high-court-paves-way-for-more-parties-to-challenge-nonfunctional-grass-irrigation-ban-3790366/) litigation. Analysis has shown that turf irrigation in the region requires [substantial](https://www.snwa.com/assets/pdf/reports-xeriscape.pdf) amounts of water, especially when compared to more sustainable landscaping alternatives. But getting rid of the turf to reduce water consumption has considerable tradeoffs: academic research has [demonstrated](https://www.researchgate.net/publication/370171341_The_effect_of_removal_of_all_non-functional_turf_in_Las_Vegas_tradeoffs_between_water_conservation_excessive_heat_and_storminess) that removing nonfunctional turf leads to net local warming. Compiling turf loss with surface temperature and water consumption estimates allows residents and policymakers to view changes and patterns over time at a local level. The dashboard, thus, becomes a tool in which legal arguments can be grounded in measurable environmental evidence.
 
-### Data
+## Data
 
-What data are you using? 
+<table>
+  <tr>
+    <th>Category</th>
+    <th>Dataset</th>
+    <th>Description</th>
+    <th>Source</th>
+  </tr>
+  <tr>
+    <td rowspan="4">GEE</td>
+    <td>Sentinel-2</td>
+    <td class="description">Monthly median spectral band values from Copernicus Sentinel-2 MSI surface reflectance at 10m resolution, cloud-masked with gap-filling from prior months. </td>
+    <td><a href="https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S2_SR_HARMONIZED">Link</a></td>
+  </tr>
+  <tr>
+    <td>Land Surface Temperature</td>
+    <td class="description">Monthly median land surface temperature from Landsat 8 thermal infrared (Band 10) at 30m resolution, cloud-masked and converted to Celsius with
+  gap-filling from prior months.</td>
+    <td><a href="https://developers.google.com/earth-engine/datasets/catalog/LANDSAT_LC08_C02_T1_L2">Link</a></td>
+  </tr>
+  <tr>
+    <td>Evapotranspiration</td>
+    <td class="description">Monthly actual evapotranspiration at 30m resolution from OpenET, combining six satellite-based models (DisALEXI, eeMETRIC, geeSEBAL, PT-JPL,
+  SIMS, SSEBop) into a single ensemble estimate.</td>
+    <td><a href="https://openetdata.org/">Link</a></td>
+  </tr>
+  <tr>
+    <td>Census Tract Boundaries</td>
+    <td class="description">Census tract boundaries for tracts within the Las Vegas Valley.</td>
+    <td><a href="https://developers.google.com/earth-engine/datasets/catalog/TIGER_2020_TRACT">Link</a></td>
+  </tr>
+    <tr>
+    <td rowspan="1">Other</td>
+    <td>Metro Area Boundary</td>
+    <td class="description"> Las Vegas Valley boundary compiled using Las Vegas - Henderson and Boulder City.</td>
+ <td><a href="https://catalog.data.gov/dataset/tiger-line-shapefile-2020-nation-u-s-2020-census-urban-area">Link</a></td>
+  </tr>
+</table>
+## Methodology
+### Green Space Detection
 
-### Methodology
+An office park may cover a cluster of several Sentinel-2 pixels, a median strip may run a narrow trail through a few pixels, and a roundabout may cover just a small fraction of one pixel. To identify changes to turf of varying sizes, we estimate fractional vegetation cover (FVC) using a 5-endmember linear spectral mixture analysis (SMA) model. This model approximates the fractional coverage of each endmember within a pixel, and we then isolate the calculated vegetation percentages to arrive at our pixel-level FVC estimates.
 
-How are you using this data to address the problem?
+![SMA model overview. The composition of each pixel is estimated using 5 endmembers: 1) green vegetation, 2) soil 3) dark impervious materials (e.g. asphalt), 4) bright impervious materials (e.g. concrete), and 5) regional impervious materials (e.g. terra cotta roofing).](images/SMA.png)
 
-### Interface
+#### FVC Estimation Code
+```js
+// CONFIGURATION
+ 
+var startYear = 2019;
+var startMonth = 1;
+var endYear = 2026;
+var endMonth = 3;
+var baselineYear = 2019;
+ 
+var bands = ['B2', 'B3', 'B4', 'B8', 'B8A', 'B11', 'B12'];
+ 
+// Reference image date range (for endmember extraction)
+var refStartDate = ee.Date.fromYMD(2022, 6, 1);
+var refEndDate = ee.Date.fromYMD(2022, 7, 1);
 
-How does your application's interface work to address the needs of your end user?
+// LOAD BOUNDARY
+ 
+var lv_metro_boundary = ee.FeatureCollection('projects/lv-turf-removal/assets/lv_metro_boundary');
 
-## The Application 
+// HELPER FUNCTIONS
+ 
+/**
+ * Masks clouds, cirrus, and cloud shadows from Sentinel-2 imagery
+ * Uses QA60 band for clouds/cirrus and SCL band for cloud shadows
+ */
+function maskS2clouds(image) {
+  // QA60 band for clouds and cirrus
+  var qa = image.select('QA60');
+  var cloudBitMask = 1 << 10;
+  var cirrusBitMask = 1 << 11;
+ 
+  var qaMask = qa.bitwiseAnd(cloudBitMask).eq(0)
+      .and(qa.bitwiseAnd(cirrusBitMask).eq(0));
+  
+  // SCL band for cloud shadows (and optionally other classes)
+  // SCL values: 3 = cloud shadow, 8 = cloud medium prob, 9 = cloud high prob, 10 = cirrus
+  var scl = image.select('SCL');
+  var sclMask = scl.neq(3)   // cloud shadow
+      .and(scl.neq(8))       // cloud medium probability
+      .and(scl.neq(9))       // cloud high probability
+      .and(scl.neq(10));     // cirrus
+  
+  // Combine both masks
+  var combinedMask = qaMask.and(sclMask);
+ 
+  return image.updateMask(combinedMask).divide(10000);
+}
+ 
+/**
+ * Gets median spectral profile for a geometry from the reference image
+ */
+var getProfile = function(geometry, refImg) {
+  var dict = refImg.reduceRegion({
+    reducer: ee.Reducer.median(),
+    geometry: geometry,
+    scale: 10,
+    maxPixels: 1e9
+  });
+  return bands.map(function(b) { return dict.get(b); });
+};
+ 
+/**
+ * Performs spectral unmixing and calculates RMSE
+ */
+function unmixWithRMSE(img, endmembers) {
+  var unmixed = img.unmix(endmembers, true, true)
+    .rename(['veg', 'npv', 'bimp', 'dimp', 'tcr']);
+    
+  // RMSE calculation
+  var fractionArray = unmixed.toArray().toArray(1);
+  var endmemberArray = ee.Array(endmembers).transpose();
+  
+  var reconstructedArray = ee.Image(endmemberArray).matrixMultiply(fractionArray);
+  var reconstructed = reconstructedArray
+    .arrayProject([0])
+    .arrayFlatten([bands]);
+    
+  var error = img.subtract(reconstructed).pow(2);
+  var rmse = error.reduce(ee.Reducer.mean()).sqrt().rename('rmse');
+  
+  return unmixed.addBands(rmse);
+}
 
-Replace the link below with the link to your application.
+// CREATE MONTHLY COMPOSITES
+ 
+var startDate = ee.Date.fromYMD(startYear, startMonth, 1);
+var endDate = ee.Date.fromYMD(endYear, endMonth, 1);
+var nMonths = endDate.difference(startDate, 'month').round();
+ 
+// Create a fully masked placeholder image with correct band structure
+var maskedPlaceholder = ee.Image.constant(ee.List.repeat(0, bands.length))
+  .rename(bands)
+  .updateMask(0)
+  .clip(lv_metro_boundary);
+ 
+// Create raw monthly composites (may have gaps due to clouds)
+var rawMonthlyComposites = ee.ImageCollection.fromImages(
+  ee.List.sequence(0, nMonths).map(function(n) {
+    var currentStart = startDate.advance(n, 'month');
+    var currentEnd = currentStart.advance(1, 'month');
+    
+    var collection = ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
+      .filterBounds(lv_metro_boundary)
+      .filterDate(currentStart, currentEnd)
+      .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 20))
+      .map(maskS2clouds);
+    
+    // Check if collection has any images
+    var hasImages = collection.size().gt(0);
+    
+    // Use median composite if images exist, otherwise use masked placeholder
+    var composite = ee.Image(ee.Algorithms.If(
+      hasImages,
+      collection.median().select(bands).clip(lv_metro_boundary),
+      maskedPlaceholder
+    ));
+      
+    return composite.set({
+      'month': currentStart.get('month'),
+      'year': currentStart.get('year'),
+      'system:time_start': currentStart.millis()
+    });
+  })
+);
+
+// GAP-FILL MISSING MONTHS (carry forward values from previous month)
+ 
+var compositeList = rawMonthlyComposites.toList(rawMonthlyComposites.size());
+ 
+var filledList = ee.List(
+  ee.List.sequence(0, nMonths).iterate(function(n, acc) {
+    n = ee.Number(n);
+    acc = ee.List(acc);
+ 
+    var current = ee.Image(compositeList.get(n));
+    
+    // Check if current image has ANY valid pixels
+    var validPixelCount = current.select(0).reduceRegion({
+      reducer: ee.Reducer.count(),
+      geometry: lv_metro_boundary,
+      scale: 1000,  // Coarse scale for efficiency
+      maxPixels: 1e6
+    }).get(bands[0]);
+    
+    var hasValidPixels = ee.Number(validPixelCount).gt(0);
+ 
+    var filled = ee.Algorithms.If(
+      n.gt(0),
+      ee.Algorithms.If(
+        hasValidPixels,
+        // Current has some valid pixels: fill any remaining gaps with previous
+        current.unmask(ee.Image(acc.get(n.subtract(1)))),
+        // Current is entirely empty: use previous month entirely
+        ee.Image(acc.get(n.subtract(1)))
+      ),
+      current
+    );
+ 
+    return acc.add(ee.Image(filled));
+  }, ee.List([]))
+);
+ 
+// Reconstruct ImageCollection with preserved metadata
+var monthlyComposites = ee.ImageCollection.fromImages(
+  ee.List.sequence(0, nMonths).map(function(n) {
+    var filledImg = ee.Image(filledList.get(n));
+    var originalImg = ee.Image(compositeList.get(n));
+    
+    return filledImg.copyProperties(originalImg, ['month', 'year', 'system:time_start']);
+  })
+);
+
+// CREATE REFERENCE IMAGE AND ENDMEMBERS
+ 
+var referenceImg = ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
+  .filterBounds(lv_metro_boundary)
+  .filterDate(refStartDate, refEndDate)
+  .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 20))
+  .map(maskS2clouds)
+  .median()
+  .select(bands)
+  .clip(lv_metro_boundary);
+ 
+// em1_veg, em2_npv, etc.
+var endmembers = [
+  getProfile(em1_veg, referenceImg),
+  getProfile(em2_npv, referenceImg),
+  getProfile(em3_bimp, referenceImg),
+  getProfile(em4_dimp, referenceImg),
+  getProfile(em5_tcr, referenceImg)
+];
+
+// SPECTRAL UNMIXING WITH RMSE
+ 
+var unmixedCollection = monthlyComposites.map(function(img) {
+  return unmixWithRMSE(img, endmembers)
+    .copyProperties(img, ['system:time_start', 'month', 'year']);
+});
+
+// CALCULATE VEGETATION DIFFERENCE FROM BASELINE
+
+var baselineCollection = unmixedCollection.filter(ee.Filter.eq('year', baselineYear));
+ 
+var monthJoin = ee.Join.saveFirst({ matchKey: 'baseline_img' });
+var filterByMonth = ee.Filter.equals({ leftField: 'month', rightField: 'month' });
+ 
+var joinedCollection = ee.ImageCollection(
+  monthJoin.apply(unmixedCollection, baselineCollection, filterByMonth)
+);
+ 
+var diffCollection = joinedCollection.map(function(img) {
+  var currentImg = ee.Image(img);
+  var baselineImg = ee.Image(currentImg.get('baseline_img'));
+  
+  var currentVeg = currentImg.select('veg');
+  var baselineVeg = baselineImg.select('veg');
+  
+  var diff = currentVeg.subtract(baselineVeg).rename('veg_diff');
+  
+  return currentImg.addBands(diff);
+});
+
+// COMPUTE MONTHLY AVERAGE RMSE
+ 
+var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+ 
+// Calculate mean RMSE for each calendar month (1-12) across all years
+var monthlyRMSEValues = ee.List.sequence(1, 12).map(function(month) {
+  var monthImages = unmixedCollection.filter(ee.Filter.eq('month', month));
+  var meanRMSE = monthImages.select('rmse').mean();
+  
+  return meanRMSE.reduceRegion({
+    reducer: ee.Reducer.mean(),
+    geometry: lv_metro_boundary,
+    scale: 100,
+    maxPixels: 1e9
+  }).get('rmse');
+});
+ 
+// Create ordered dictionary (Jan -> Dec)
+var monthlyRMSEDict = ee.Dictionary.fromLists(monthNames, monthlyRMSEValues);
+print('Monthly RMSE:');
+print(monthlyRMSEDict);
+ 
+// Calculate total (overall) RMSE across all images
+var totalRMSE = unmixedCollection.select('rmse').mean().reduceRegion({
+  reducer: ee.Reducer.mean(),
+  geometry: lv_metro_boundary,
+  scale: 100,
+  maxPixels: 1e9
+});
+print('Total RMSE:');
+print(totalRMSE.get('rmse'));
+
+```
+
+### Water Consumption
+
+In arid regions like Las Vegas, evapotranspiration (ET) serves as a strong proxy for water consumption: with minimal rainfall, almost all ET is the result of irrigation. ET is modeled by combining satellite-derived land surface temperature and vegetation indices with meteorological variables such as wind speed, humidity, and solar radiation. The resulting value measures the total flux of water from the land surface to the atmosphere through both soil evaporation and plant transpiration.
+
+ET Estimation Code
+```js
+RELEVANT WATER CONSUMPTION CODE HERE
+```
+
+### Seasonal Analysis
+
+All of our variables contain an element of seasonality. We observe, for example, that green space shrinks in winter months, while temperatures climb in summer months. When we see that a neighborhood has lost green space from June to December, has this green space actually been removed? Or is this just typical seasonal fluctuation? To try to better separate routine seasonality from the true signal of interest, we compare each month in 2020-2025 to the same month from 2019. The resulting comparison data filters out some sense of seasonal fluctuation and enables users to more easily compare changes across any timeframe.
+
+## Interface
+
+This application offers an interactive interface for exploring spatial patterns, temporal change, and tract-level differences through comparative visualisations, statistical summaries, and local insights. The map-based dashboard design and flexible selection controls aims to support clear navigation, easy comparison, and informed interpretation. More details can be found in the panels under `About` and `How to use`.
+
+## The Application
 
 :::{.column-page}
 
 <iframe src='https://tribal-monolith-488411-r8.projects.earthengine.app/view/casa0025finalproject' width='100%' height='700px'></iframe>
 
 :::
-## How it Works 
 
-Use this section to explain how your application works using code blocks and text explanations (no more than 500 words excluding code):
+## How it Works
 
-```js
-Map.setCenter(35.51898, 33.90153, 15);
+### 1. Data Preparation and Precomputation
 
-Map.setOptions("satellite");
+To keep the interface fast and interactive, monthly image collections are pre-computed and summarised within the metro boundaries, making it easier to compare changes across time periods and against a 2019 baseline.
 
-var aoi = ee.Geometry.Point(35.51898, 33.90153).buffer(3000);
+#### Precomputed Layers
+
+- Vegetation: monthly vegetation is shown as fractional vegetation cover (FVC), along with vegetation change layers relative to the same month in 2019.
+- Surface Temperature: monthly land surface temperature is shown alongside temperature change layers relative to the same month in 2019.
+- Water Consumption: monthly water consumption is estimated from evapotranspiration, with change layers also shown relative to the same month in 2019.
+
+#### Tract-Level Aggregation
+
+Each layer is aggregated to both the study area and census tract level. When a tract is selected, the app calculates summary statistics for the chosen place and time period. These outputs are then used to generate key metrics, histograms, and monthly trend charts, supporting both single-tract analysis and two-tract comparison.
+
+
+### 2. Interactive Visualisation and Analysis
+
+#### Quick Navigation
+
+At startup, the map displays the Las Vegas study area divided by census tracts. To streamline exploration across the area, the application provides a “Quick Navigation” dropdown, which allows users to jump to specific incorporated cities (like Henderson) or unincorporated Census-Designated Places (CDPs). Selecting a location automatically pans and scales the synchronized maps to the optimal zoom level.
+
+``` js
+var LV_PLACES = [
+ // ── Incorporated cities ──
+ {name: 'Las Vegas',        lon: -115.1398, lat: 36.1699, zoom: 12},
+ {name: 'Henderson',        lon: -115.0361, lat: 36.0292, zoom: 12},
+ {name: 'North Las Vegas',  lon: -115.1175, lat: 36.2288, zoom: 12},
+ // ── Unincorporated CDPs ──
+ {name: 'Paradise',         lon: -115.1469, lat: 36.0970, zoom: 13},
+ {name: 'Enterprise',       lon: -115.2200, lat: 36.0265, zoom: 13},
+ {name: 'Spring Valley',    lon: -115.2450, lat: 36.1070, zoom: 13},
+ {name: 'Sunrise Manor',    lon: -115.0730, lat: 36.1710, zoom: 13},
+ {name: 'Summerlin South',  lon: -115.3300, lat: 36.1300, zoom: 13},
+ {name: 'Whitney',          lon: -115.0690, lat: 36.1000, zoom: 14},
+ {name: 'Winchester',       lon: -115.1180, lat: 36.1290, zoom: 14},
+ {name: 'Lone Mountain',    lon: -115.2800, lat: 36.2650, zoom: 14},
+ {name: 'Nellis AFB',       lon: -115.0480, lat: 36.2360, zoom: 14}
+];
+
+
+var placeNames = LV_PLACES.map(function(p) { return p.name; });
+
+
+var placeSelect = ui.Select({
+ items: placeNames,
+ placeholder: 'Jump to a place...',
+ style: {stretch: 'horizontal', fontSize: '12px'}
+});
+
+
+placeSelect.onChange(function(name) {
+ var match = LV_PLACES.filter(function(p) { return p.name === name; })[0];
+ if (match) {
+   leftMap.setCenter(match.lon, match.lat, match.zoom || 13);
+   if (rightMap) { rightMap.setCenter(match.lon, match.lat, match.zoom || 13); }
+ }
+});
+
+
+var navPanel = ui.Panel([
+ makeSectionTitle('Quick navigation'),
+ placeSelect
+], null, STYLES.section);
 ```
 
-You can include images:
+#### Interactive Tract Profiling
 
-![Pixelwise T-Test, 2018](images/beirut_change_2020.jpg)
+Using the “Tract Profile” view, users can click any single tract to instantly generate a local profile. This triggers the UI to populate statistical cards (e.g. green space changes, surface temperature changes, water consumption changes) and dynamic distribution histograms, which calculate based on the selected time ranges.
 
-and math:
-$$ \Large t = {\frac{\overline{x_1}-\overline{x_2}} {\sqrt{\frac{s^2_1}{n_1} + \frac{s^2_2}{n_2}}}} $$
+```js
+function handleMapClick(coords) {
+ if (state.currentView === 'about') return;
+ var point = ee.Geometry.Point(coords.lon, coords.lat); var clicked = tracts.filterBounds(point).first();
+ clicked.evaluate(function(f) { if (!f) return; var tract = ee.Feature(f); if (state.currentView === 'explore') updateSidePanel(tract); else if (state.currentView === 'compare') handleCompareClick(tract); });
+}
+leftMap.onClick(handleMapClick); rightMap.onClick(handleMapClick);
+```
+
+#### Comparative Analysis
+
+Under the “Compare Tracts” tab, users can evaluate spatial disparities by selecting any two distinct tracts directly on the map. The application dynamically builds side-by-side statistical cards and overlays the monthly metrics of both tracts onto synchronized line charts, which allows for a direct visual comparison of their environmental trends
 
 
+```js
+ var fvcChart = ui.Chart.feature.byFeature({
+   features: table, xProperty: 'date', yProperties: ['FVC_A', 'FVC_B']
+ }).setChartType('LineChart').setOptions({
+   title: 'Monthly Greenness Trend\nTract ' + geoidA + ' vs Tract ' + geoidB,
+   hAxis: {title: 'Month', slantedText: true, slantedTextAngle: 45, textStyle: {fontSize: 8}},
+   vAxis: {title: 'Mean FVC', viewWindow: {min: 0, max: 0.3}},
+   legend: {position: 'top'}, lineWidth: 3, pointSize: 0, interpolateNulls: true,
+   series: {0: {color: colorA, labelInLegend: 'Tract ' + geoidA}, 1: {color: colorB, labelInLegend: 'Tract ' + geoidB}},
+   chartArea: {left: 60, top: 45, width: '76%', height: '56%'}, fontSize: 11});
+ var lstChart = ui.Chart.feature.byFeature({
+   features: table, xProperty: 'date', yProperties: ['LST_A', 'LST_B']
+ }).setChartType('LineChart').setOptions({
+   title: 'Monthly Land Surface Temperature\nTract ' + geoidA + ' vs Tract ' + geoidB,
+   hAxis: {title: 'Month', slantedText: true, slantedTextAngle: 45, textStyle: {fontSize: 8}},
+   vAxis: {title: 'LST Celsius', viewWindow: {min: 15, max: 70}},
+   legend: {position: 'top'}, lineWidth: 3, pointSize: 0, interpolateNulls: true,
+   series: {0: {color: colorA, labelInLegend: 'Tract ' + geoidA}, 1: {color: colorB, labelInLegend: 'Tract ' + geoidB}},
+   chartArea: {left: 60, top: 45, width: '76%', height: '56%'}, fontSize: 11});
+ var etCompareChart = ui.Chart.feature.byFeature({
+   features: table, xProperty: 'date', yProperties: ['ET_A', 'ET_B']
+ }).setChartType('LineChart').setOptions({
+   title: 'Monthly Water Consumption\nTract ' + geoidA + ' vs Tract ' + geoidB,
+   hAxis: {title: 'Month', slantedText: true, slantedTextAngle: 45, textStyle: {fontSize: 8}},
+   vAxis: {title: 'Mean water consumption (mm)', viewWindow: {min: 0, max: 200}},
+   legend: {position: 'top'}, lineWidth: 3, pointSize: 0, interpolateNulls: true,
+   series: {0: {color: colorA, labelInLegend: 'Tract ' + geoidA}, 1: {color: colorB, labelInLegend: 'Tract ' + geoidB}},
+   chartArea: {left: 60, top: 45, width: '76%', height: '56%'}, fontSize: 11});
+```
+ 
+#### Temporal Split-Panel 
+To visually assess environmental shifts between any 2 selected months, the application features a synchronized split-screen map with a draggable divider for “start month” and “end month” comparisons
+
+```js
+ui.root.clear();
+var leftMap = ui.Map(); var rightMap = ui.Map();
+
+
+[leftMap, rightMap].forEach(function(m) { m.setControlVisibility({
+ all: false, zoomControl: true,
+ scaleControl: true,
+ mapTypeControl: true});
+ m.setOptions('Custom', {Custom: [{stylers: [{saturation: -75}]},
+ {featureType: 'poi', stylers: [{visibility: 'off'}]},
+ {featureType: 'transit', stylers: [{visibility: 'off'}]}]}); });
+// Synchronized split panel map for temporal
+ var mapLinker = ui.Map.Linker([leftMap, rightMap]);
+
+
+var leftDateLabel = ui.Label('Jun 2020',
+ {fontSize: '15px',
+   fontWeight: 'bold',
+   backgroundColor: 'rgba(255,255,255,0.95)',
+   padding: '6px 14px',
+   position: 'top-left',
+   border: '1px solid rgba(0,0,0,0.12)'});
+var rightDateLabel = ui.Label('Jun 2023',
+ {fontSize: '15px',
+   fontWeight: 'bold',
+   backgroundColor: 'rgba(255,255,255,0.95)',
+   padding: '6px 14px',
+   position: 'top-right',
+   border: '1px solid rgba(0,0,0,0.12)'});
+
+
+leftMap.add(leftDateLabel); rightMap.add(rightDateLabel);
+
+
+var splitPanel = ui.SplitPanel({
+ firstPanel: leftMap,
+ secondPanel: rightMap,
+ orientation: 'horizontal',
+ wipe: true,
+ style: {stretch: 'both'}});
+
+
+var mapContainer = ui.Panel([splitPanel], null, {stretch: 'both', backgroundColor: '#' + COLORS.white});
+```
+
+#### Baseline Mode
+To make the analysis more robust, we account for natural weather fluctuations. Specifically, users can toggle “Seasonally adjusted data” from “Actual data”. This application then instantly switches the map and charts from raw data to data relative to the same month in 2019.
+
+```js
+function refreshMap() {
+ var isSameDate = (state.fromYear === state.toYear && state.fromMonth === state.toMonth);
+ var isBaseline = (state.timeMode === 'adjusted');
+
+
+ splitCheck.style().set('shown', !isSameDate || isBaseline);
+ var actuallySplit = state.splitEnabled && (!isSameDate || isBaseline);
+
+
+ var fromStr = MONTHS[state.fromMonth - 1] + ' ' + state.fromYear; var toStr = MONTHS[state.toMonth - 1] + ' ' + state.toYear;
+ leftDateLabel.setValue(isBaseline ? 'Baseline 2019' : (isSameDate || actuallySplit ? fromStr : fromStr + ' → ' + toStr)); rightDateLabel.setValue(toStr);
+ leftMap.layers().reset(); rightMap.layers().reset();
+
+
+ if (actuallySplit) {
+   if (containerMode !== 'split') { mapContainer.widgets().reset([splitPanel]); containerMode = 'split'; }
+   rightDateLabel.style().set('shown', true);
+
+
+   if (state.activeLayer === 'greenspace') {
+     leftMap.addLayer(getFVCImage(state.fromYear, state.fromMonth), fvc_vis, 'FVC Before');
+     rightMap.addLayer(getFVCImage(state.toYear, state.toMonth), fvc_vis, 'FVC After'); }
+   else if (state.activeLayer === 'temperature') {
+     leftMap.addLayer(getLSTImage(state.fromYear, state.fromMonth), lst_vis, 'LST Before');
+     rightMap.addLayer(getLSTImage(state.toYear, state.toMonth), lst_vis, 'LST After'); }
+   else if (state.activeLayer === 'water') {
+     leftMap.addLayer(getETImage(state.fromYear, state.fromMonth), et_vis, 'Water Before');
+     rightMap.addLayer(getETImage(state.toYear, state.toMonth), et_vis, 'Water After'); }
+   else {
+     leftMap.addLayer(getS2Composite(state.fromYear, state.fromMonth), s2_vis, 'S2 Before');
+     rightMap.addLayer(getS2Composite(state.toYear, state.toMonth), s2_vis, 'S2 After'); }
+ } else {
+   if (containerMode !== 'single') { mapContainer.widgets().reset([leftMap]); containerMode = 'single'; }
+   rightDateLabel.style().set('shown', false);
+   if (isSameDate && !isBaseline) {
+     if (state.activeLayer === 'greenspace') leftMap.addLayer(getFVCImage(state.fromYear, state.fromMonth), fvc_vis, 'FVC');
+     else if (state.activeLayer === 'temperature') leftMap.addLayer(getLSTImage(state.fromYear, state.fromMonth), lst_vis, 'LST');
+     else if (state.activeLayer === 'water') leftMap.addLayer(getETImage(state.fromYear, state.fromMonth), et_vis, 'Water');
+     else leftMap.addLayer(getS2Composite(state.fromYear, state.fromMonth), s2_vis, 'Satellite');
+   } else {
+     if (state.activeLayer === 'greenspace') {
+       var fvcDiff = isBaseline ? getVegDiffImage(state.toYear, state.toMonth) : getFVCImage(state.toYear, state.toMonth).subtract(getFVCImage(state.fromYear, state.fromMonth));
+       leftMap.addLayer(fvcDiff, fvc_diff_vis, 'FVC change');
+     } else if (state.activeLayer === 'temperature') {
+       var lstDiff = isBaseline ? getLSTDiffImage(state.toYear, state.toMonth) : getLSTImage(state.toYear, state.toMonth).subtract(getLSTImage(state.fromYear, state.fromMonth));
+       leftMap.addLayer(lstDiff, lst_diff_vis, 'LST change');
+     } else if (state.activeLayer === 'water') {
+       var etDiff = isBaseline ? getETDiffImage(state.toYear, state.toMonth) : getETImage(state.toYear, state.toMonth).subtract(getETImage(state.fromYear, state.fromMonth));
+       leftMap.addLayer(etDiff, et_diff_vis, 'Water change');
+     } else { leftMap.addLayer(getS2Composite(state.toYear, state.toMonth), s2_vis, 'Current view'); }
+   }
+ }
+
+
+ var tractStyle = tracts.style({color: COLORS.primary + '99', fillColor: '00000000', width: 0.8}); leftMap.addLayer(tractStyle, {}, 'Census tracts'); if (state.splitEnabled) rightMap.addLayer(tractStyle, {}, 'Census tracts');
+ var boundaryStyle = lasvegas_boundary.style({color: COLORS.primary, fillColor: '00000000', width: 2}); leftMap.addLayer(boundaryStyle, {}, 'Study area'); if (state.splitEnabled) rightMap.addLayer(boundaryStyle, {}, 'Study area');
+
+
+ state.compareTracts.forEach(function(t) { var compStyle = ee.FeatureCollection([ee.Feature(t.feature.geometry())]).style({color: t.color, fillColor: t.color + '40', width: 3}); leftMap.addLayer(compStyle, {}, 'Compare tract: ' + t.geoid); if (state.splitEnabled) rightMap.addLayer(compStyle, {}, 'Compare tract: ' + t.geoid); });
+ if (state.selectedTract) { var highlightStyle = ee.FeatureCollection([ee.Feature(state.selectedTract.geometry())]).style({color: COLORS.primary, fillColor: COLORS.primary + '30', width: 2}); leftMap.addLayer(highlightStyle, {}, 'Selected tract'); if (state.splitEnabled) rightMap.addLayer(highlightStyle, {}, 'Selected tract'); }
+
+
+ updateLegendVisibility(); if (!mapInitialized) { leftMap.centerObject(roi, 11); mapInitialized = true; }
+}
+```
+
+## Appendix
+
+### Limitations
+
+Against this background, the present project seeks to identify where non-functional turf appears to have been removed across the Las Vegas Valley and whether those locations also show local increases in land surface temperature. However, the dashboard is designed as an exploratory spatial evidence tool rather than a causal model. While it can help users identify where turf loss and higher land surface temperature appear together, it cannot, on its own, confirm that turf removal directly caused local warming, since other factors such as surface materials, urban form, and seasonal variation may also influence observed temperature patterns.
+
+### SMA Model Coverage
+
+The SMA model was selected based on similar research from [early SMA models](https://www.sciencedirect.com/science/article/pii/S0034425702001360) and our [region of interest](https://www.mdpi.com/2073-445X/7/4/135). Visual analysis reveals that the SMA model successfully identifies green space locations and changes over time. To assess the completeness of our SMA model more technically, we measure the root mean squared error (spectral RMSE) between every pixel’s true band distribution and SMA-constructed band distribution.
+
+$$RMSE = \sqrt{\frac{1}{7}\sum_{b=1}^{7}\left(\rho_{b}-\sum_{k=1}^{5}f_{k}\cdot e_{kb}\right)^{2}$$
+
+where, $e_{kb} is the reflectance of endmember $k$ in band $b$, and, for a given pixel, $\rho_{b}$ is the observed reflectance in spectral band $b$, and $f_{k}$ is the estimated fraction of endmember $k$ in the pixel.
+
+Across all months, the SMA model achieves a spectral RMSE of 0.011 for our reflectance values which have been scaled between 0 and 1. Past research has established a spectral RMSE threshold of 0.025 for acceptable SMA model coverage (Roberts et al. 1998), indicating that, even for a SMA model like ours with more endmembers, the model captures the spectral dimensionality of our area well.
+
+There still remains future potential for improvement with the model. Aggregated monthly RMSEs do reveal slight seasonal changes in accuracy (with winter months achieving a lower RMSE), and visual analysis indicates that errors are higher for bright impervious materials such as the white roofs of large corporate or government buildings. 
