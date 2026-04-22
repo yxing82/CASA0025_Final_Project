@@ -54,12 +54,16 @@ a:visited {
 }
 
 .quarto-title-block .quarto-title-banner {
-    height: 350px;
+    height: 60vh;
+
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
-    background-color: #5a5d3c; /* Deep olive background */
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 #title-block-header.quarto-title-block.default .quarto-title .title {
