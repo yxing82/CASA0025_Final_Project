@@ -344,7 +344,7 @@ This application offers an interactive interface for exploring spatial patterns,
 
 ## How it Works
 
-### 1. Data Preparation and Precomputation
+### Data Preparation and Precomputation
 
 To keep the interface fast and interactive, monthly image collections are pre-computed and summarised within the metro boundaries, making it easier to compare changes across time periods and against a 2019 baseline.
 
@@ -359,7 +359,7 @@ To keep the interface fast and interactive, monthly image collections are pre-co
 Each layer is aggregated to both the study area and census tract level. When a tract is selected, the app calculates summary statistics for the chosen place and time period. These outputs are then used to generate key metrics, histograms, and monthly trend charts, supporting both single-tract analysis and two-tract comparison.
 
 
-### 2. Interactive Visualisation and Analysis
+### Interactive Visualisation and Analysis
 
 #### Quick Navigation
 
