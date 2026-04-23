@@ -1,7 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════════
-// LAS VEGAS VALLEY TURF TRACKER — UI FRAMEWORK v41
-// v41: Updated "About" tab with full project aim, objectives, and data sources
-// solve the split view and zoom issues again in this version -- yh there's a bug againnn
+// LAS VEGAS VALLEY TURF TRACKER — UI FRAMEWORK v43
+// add back satellite layer to "map controls"
 // ═══════════════════════════════════════════════════════════════════════
 
 // ─── NEW: CONFIGURATION OBJECT ──────────────────────────────────────
@@ -489,7 +488,20 @@ function makeSectionTitle(text) { return ui.Label(text, STYLES.subtitle); }
 function makeSeparator() { return ui.Panel(null, null, {height: '1px', backgroundColor: '#' + COLORS.grayMid, margin: '8px 0'}); }
 function makeStatCard(label) { var valLabel = ui.Label('—', STYLES.statValue); var nameLabel = ui.Label(label, STYLES.statLabel); var deltaLabel = ui.Label('', {fontSize: '11px'}); return {panel: ui.Panel([nameLabel, valLabel, deltaLabel], null, STYLES.card), name: nameLabel, val: valLabel, delta: deltaLabel}; }
 function styleTabButton(btn, active) { btn.style().set({backgroundColor: active ? '#E8F0F7' : UI_COLORS.inactiveFill, color: active ? '#' + COLORS.primaryDark : UI_COLORS.inactiveText, border: active ? '2px solid #' + COLORS.primary : '1px solid #' + COLORS.grayMid, padding: '8px 16px', margin: '0 6px 0 0', fontSize: '12px', fontWeight: active ? 'bold' : 'normal'}); }
-function stylePillButton(btn, active) { btn.style().set({backgroundColor: active ? '#E8F0F7' : UI_COLORS.inactiveFill, color: active ? '#' + COLORS.primaryDark : UI_COLORS.inactiveText, border: active ? '2px solid #' + COLORS.primary : '1px solid #' + COLORS.grayMid, padding: '6px 12px', margin: '2px 6px 2px 0', fontSize: '11px', fontWeight: active ? 'bold' : 'normal'}); }
+// update in v43
+function stylePillButton(btn, active) { 
+  btn.style().set({
+    backgroundColor: active ? '#E8F0F7' : UI_COLORS.inactiveFill, 
+    color: active ? '#' + COLORS.primaryDark : UI_COLORS.inactiveText, 
+    border: active ? '2px solid #' + COLORS.primary : '1px solid #' + COLORS.grayMid, 
+    padding: '4px 8px',       
+    margin: '2px 4px 2px 0',  
+    fontSize: '11px', 
+    fontWeight: active ? 'bold' : 'normal',
+    stretch: 'horizontal',   // forces equal width distribution
+    textAlign: 'center'      // keeps text centered in the wider button
+  }); 
+}
 
 // ─── SECTION 6: MAPS ────────────────────────────────────────────────
 
@@ -636,17 +648,33 @@ function updateTimeModeUI() {
   }
 }
 
+// update in v43 for makeLayerPill and updateLayerPills
 function makeLayerPill(label, key) {
   var btn = ui.Button(label, function() { state.activeLayer = key; updateLayerPills(); updateTimeModeUI(); refreshMap(); });
-  btn._key = key; btn.style().set({fontSize: '11px', padding: '6px 12px', margin: '2px 6px 2px 0', border: '0px solid transparent'}); return btn;
+  btn._key = key; 
+  btn.style().set({
+    fontSize: '11px', 
+    padding: '4px 8px', 
+    margin: '2px 4px 2px 0', 
+    border: '0px solid transparent',
+    stretch: 'horizontal',   
+    textAlign: 'center'
+  }); 
+  return btn;
 }
 
+var pillSat       = makeLayerPill('Satellite', 'satellite');
 var pillGreen     = makeLayerPill('Greenness', 'greenspace');
 var pillTemp      = makeLayerPill('Heat', 'temperature');
-var pillWater     = makeLayerPill('Water Consumption', 'water');
+var pillWater     = makeLayerPill('Water', 'water'); // Shortened label to fit 4 across
 
+// function updateLayerPills() { 
+//   [pillSat, pillGreen, pillTemp, pillWater].forEach(function(p) { 
+//     stylePillButton(p, p._key === state.activeLayer); 
+//   }); 
+// }
 function updateLayerPills() { 
-  [pillGreen, pillTemp, pillWater].forEach(function(p) { 
+  [pillGreen, pillTemp, pillWater, pillSat].forEach(function(p) { 
     stylePillButton(p, p._key === state.activeLayer); 
   }); 
 }
@@ -682,11 +710,23 @@ var splitCheck = ui.Checkbox('Split view', true); splitCheck.style().set({fontSi
 
 
 
+// // BOX 1: Map controls
+// var controlsPanel = ui.Panel([
+//   makeSectionTitle('Map controls'), 
+//   ui.Label('Layer', STYLES.muted), 
+//   ui.Panel([pillGreen, pillTemp, pillWater], ui.Panel.Layout.flow('horizontal'))
+// ], null, STYLES.section);
+
+// update in v43
 // BOX 1: Map controls
 var controlsPanel = ui.Panel([
   makeSectionTitle('Map controls'), 
   ui.Label('Layer', STYLES.muted), 
-  ui.Panel([pillGreen, pillTemp, pillWater], ui.Panel.Layout.flow('horizontal'))
+  ui.Panel({
+    widgets: [pillGreen, pillTemp, pillWater, pillSat], 
+    layout: ui.Panel.Layout.flow('horizontal'),
+    style: {stretch: 'horizontal'} 
+  })
 ], null, STYLES.section);
 
 // BOX 2: Analysis modes
@@ -1388,16 +1428,11 @@ var aboutContent = ui.Panel([
   makeSectionTitle('About this Dashboard'),
   ui.Label(
     'This dashboard quantifies land surface temperature variation and estimated water savings ' +
-    'associated with turf removal across the Las Vegas Valley, using Sentinel-2 and Landsat 8 imagery.\n\n' +
-    'Designed for Las Vegas Valley policymakers and residents, including those involved in ' +
-    'ongoing litigation, it provides a map-based analytical ' +
+    'associated with turf removal across the Las Vegas Valley, using Sentinel-2 and Landsat 8 imagery.\n' +
+    'Designed for legal stakeholders, urban planners, and researchers, it provides a map-based analytical ' +
     'interface with side-by-side tract comparisons and tract-level metrics to support spatial interpretation ' +
     'and evidence-based decision-making, contextualised by Nevada Assembly Bill 356 (2021).',
     {fontSize: '12px', color: COLORS.black, whiteSpace: 'pre-wrap'}
-  ),
-  ui.Label('Read more about the ongoing legal challenge ↗',
-    {fontSize: '11px', color: COLORS.primary, margin: '6px 0 0 0'},
-    'https://www.reviewjournal.com/news/civil-courts/high-court-paves-way-for-more-parties-to-challenge-nonfunctional-grass-irrigation-ban-3790366/'
   ),
   makeSeparator(),
   ui.Label('Project Aim', {fontSize: '13px', fontWeight: 'bold', color: COLORS.black}),
@@ -1426,11 +1461,11 @@ var aboutContent = ui.Panel([
   ui.Label(
     '4.  To evaluate spatial variation in turf designation and removal patterns across the Las Vegas Valley ' +
     'in order to identify enforcement inconsistencies that may be relevant to plaintiffs in Case No. ' +
-    'A-26-937025-C (a pending legal challenge to the implementation of AB 356).',
+    'A-26-937025-C (a resident lawsuit to pause mandatory turf removal to protect the local tree canopy).',
     {fontSize: '12px', color: COLORS.black, whiteSpace: 'pre-wrap', margin: '0 0 6px 0'}
   ),
   ui.Label(
-    '5.  To provide an accessible interactive platform through which policymakers, residents, and litigants can explore ' +
+    '5.  To provide an accessible interactive platform through which plaintiffs and stakeholders can explore ' +
     'tract-level spatial, thermal, and water-use evidence to support informed interpretation of turf removal outcomes.',
     {fontSize: '12px', color: COLORS.black, whiteSpace: 'pre-wrap', margin: '0 0 6px 0'}
   ),
@@ -1452,9 +1487,9 @@ var leftSidebar = ui.Panel([
   instructionPanel,      // "How to use"
   navPanel,              // Quick navigation (v36)
   controlsPanel,         // "Map controls"
-  analysisPanel,         // "Analysis settings"
   exploreTop,            // "Select a tract" (Shows in Explore tab)
   comparePromptPanel,    // "Compare areas" (Shows in Compare tab) 
+  analysisPanel,         // "Analysis settings"
   exploreBottom,         // Stats/trends (Explore tab)
   compareContent,        // Stats/trends (Compare tab)
   aboutContent           // About tab

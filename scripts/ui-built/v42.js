@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════
-// LAS VEGAS VALLEY TURF TRACKER — UI FRAMEWORK v41
+// LAS VEGAS VALLEY TURF TRACKER — UI FRAMEWORK v42
 // fix panel order issues
 // ═══════════════════════════════════════════════════════════════════════
 

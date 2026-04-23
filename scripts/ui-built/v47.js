@@ -1,7 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════════
-// LAS VEGAS VALLEY TURF TRACKER — UI FRAMEWORK v41
-// v41: Updated "About" tab with full project aim, objectives, and data sources
-// solve the split view and zoom issues again in this version -- yh there's a bug againnn
+// LAS VEGAS VALLEY TURF TRACKER — UI FRAMEWORK v48
+// seasonally adjusted data works on map! but split view broke again! 
 // ═══════════════════════════════════════════════════════════════════════
 
 // ─── NEW: CONFIGURATION OBJECT ──────────────────────────────────────
@@ -489,7 +488,20 @@ function makeSectionTitle(text) { return ui.Label(text, STYLES.subtitle); }
 function makeSeparator() { return ui.Panel(null, null, {height: '1px', backgroundColor: '#' + COLORS.grayMid, margin: '8px 0'}); }
 function makeStatCard(label) { var valLabel = ui.Label('—', STYLES.statValue); var nameLabel = ui.Label(label, STYLES.statLabel); var deltaLabel = ui.Label('', {fontSize: '11px'}); return {panel: ui.Panel([nameLabel, valLabel, deltaLabel], null, STYLES.card), name: nameLabel, val: valLabel, delta: deltaLabel}; }
 function styleTabButton(btn, active) { btn.style().set({backgroundColor: active ? '#E8F0F7' : UI_COLORS.inactiveFill, color: active ? '#' + COLORS.primaryDark : UI_COLORS.inactiveText, border: active ? '2px solid #' + COLORS.primary : '1px solid #' + COLORS.grayMid, padding: '8px 16px', margin: '0 6px 0 0', fontSize: '12px', fontWeight: active ? 'bold' : 'normal'}); }
-function stylePillButton(btn, active) { btn.style().set({backgroundColor: active ? '#E8F0F7' : UI_COLORS.inactiveFill, color: active ? '#' + COLORS.primaryDark : UI_COLORS.inactiveText, border: active ? '2px solid #' + COLORS.primary : '1px solid #' + COLORS.grayMid, padding: '6px 12px', margin: '2px 6px 2px 0', fontSize: '11px', fontWeight: active ? 'bold' : 'normal'}); }
+// update in v43
+function stylePillButton(btn, active) { 
+  btn.style().set({
+    backgroundColor: active ? '#E8F0F7' : UI_COLORS.inactiveFill, 
+    color: active ? '#' + COLORS.primaryDark : UI_COLORS.inactiveText, 
+    border: active ? '2px solid #' + COLORS.primary : '1px solid #' + COLORS.grayMid, 
+    padding: '4px 8px',       
+    margin: '2px 4px 2px 0',  
+    fontSize: '11px', 
+    fontWeight: active ? 'bold' : 'normal',
+    stretch: 'horizontal',   // forces equal width distribution
+    textAlign: 'center'      // keeps text centered in the wider button
+  }); 
+}
 
 // ─── SECTION 6: MAPS ────────────────────────────────────────────────
 
@@ -561,21 +573,21 @@ leftMap.add(leftETDiffLegend); rightMap.add(rightETDiffLegend); leftMap.add(left
 
 function updateLegendVisibility() {
   var isSameDate = (state.fromYear === state.toYear && state.fromMonth === state.toMonth);
-  var actuallySplit = state.splitEnabled && (!isSameDate || state.timeMode === 'adjusted');
-  var isDiff = !isSameDate && !actuallySplit && state.timeMode !== 'adjusted'; // Unified custom diff view
+  var actuallySplit = state.splitEnabled && (!isSameDate || state.dataType === 'adjusted');
+  var isDiff = !isSameDate && !actuallySplit && state.dataType !== 'adjusted'; // Unified custom diff view
 
   var isTemp = state.activeLayer === 'temperature';
-  var isTempDiff = isTemp && (isDiff || (state.timeMode === 'adjusted' && !actuallySplit));
+  var isTempDiff = isTemp && (isDiff || (state.dataType === 'adjusted'));
   leftLSTLegend.style().set('shown', isTemp && !isTempDiff); rightLSTLegend.style().set('shown', isTemp && !isTempDiff);
   leftLSTDiffLegend.style().set('shown', isTempDiff); rightLSTDiffLegend.style().set('shown', isTempDiff);
 
   var isGreen = state.activeLayer === 'greenspace';
-  var isGreenDiff = isGreen && (isDiff || (state.timeMode === 'adjusted' && !actuallySplit));
+  var isGreenDiff = isGreen && (isDiff || (state.dataType === 'adjusted'));
   leftFVCLegend.style().set('shown', isGreen && !isGreenDiff); rightFVCLegend.style().set('shown', isGreen && !isGreenDiff);
   leftFVCDiffLegend.style().set('shown', isGreenDiff); rightFVCDiffLegend.style().set('shown', isGreenDiff);
 
   var isWater = state.activeLayer === 'water';
-  var isWaterDiff = isWater && (isDiff || (state.timeMode === 'adjusted' && !actuallySplit));
+  var isWaterDiff = isWater && (isDiff || (state.dataType === 'adjusted'));
   leftETLegend.style().set('shown', isWater && !isWaterDiff); rightETLegend.style().set('shown', isWater && !isWaterDiff);
   leftETDiffLegend.style().set('shown', isWaterDiff); rightETDiffLegend.style().set('shown', isWaterDiff);
 }
@@ -636,17 +648,29 @@ function updateTimeModeUI() {
   }
 }
 
+// update in v43 for makeLayerPill and updateLayerPills
 function makeLayerPill(label, key) {
   var btn = ui.Button(label, function() { state.activeLayer = key; updateLayerPills(); updateTimeModeUI(); refreshMap(); });
-  btn._key = key; btn.style().set({fontSize: '11px', padding: '6px 12px', margin: '2px 6px 2px 0', border: '0px solid transparent'}); return btn;
+  btn._key = key; 
+  btn.style().set({
+    fontSize: '11px', 
+    padding: '4px 8px', 
+    margin: '2px 4px 2px 0', 
+    border: '0px solid transparent',
+    stretch: 'horizontal',   
+    textAlign: 'center'
+  }); 
+  return btn;
 }
 
+var pillSat       = makeLayerPill('Satellite', 'satellite');
 var pillGreen     = makeLayerPill('Greenness', 'greenspace');
 var pillTemp      = makeLayerPill('Heat', 'temperature');
-var pillWater     = makeLayerPill('Water Consumption', 'water');
+var pillWater     = makeLayerPill('Water', 'water'); // Shortened label to fit 4 across
+
 
 function updateLayerPills() { 
-  [pillGreen, pillTemp, pillWater].forEach(function(p) { 
+  [pillGreen, pillTemp, pillWater, pillSat].forEach(function(p) { 
     stylePillButton(p, p._key === state.activeLayer); 
   }); 
 }
@@ -681,22 +705,20 @@ timeModeSel.onChange(function(val) {
 var splitCheck = ui.Checkbox('Split view', true); splitCheck.style().set({fontSize: '13px', color: '#' + COLORS.black}); splitCheck.onChange(function(v) { state.splitEnabled = v; refreshMap(); });
 
 
-
+// update in v43
 // BOX 1: Map controls
 var controlsPanel = ui.Panel([
   makeSectionTitle('Map controls'), 
   ui.Label('Layer', STYLES.muted), 
-  ui.Panel([pillGreen, pillTemp, pillWater], ui.Panel.Layout.flow('horizontal'))
+  ui.Panel({
+    widgets: [pillGreen, pillTemp, pillWater, pillSat], 
+    layout: ui.Panel.Layout.flow('horizontal'),
+    style: {stretch: 'horizontal'} 
+  })
 ], null, STYLES.section);
 
 // BOX 2: Analysis modes
 var analysisPanel = ui.Panel([makeSectionTitle('Analysis modes'), ui.Label('Data type', STYLES.muted), dataTypeSel, makeSeparator(), ui.Label('Time frame', STYLES.muted), timeModeSel, fromRow, toRow, makeSeparator(), splitCheck], null, STYLES.section);
-
-// var instructionPanel = ui.Panel([makeSectionTitle('How to use'), 
-//     ui.Label(
-//         '1. Pick a layer (Greenness / Heat / Water) in Map Controls.\n2. Use Quick Navigation to jump to any city or community in the valley.\n3. Tract Profile: click a tract on the map to view its statistics, distribution charts, and monthly trends.\n4. Compare Tracts: click two tracts to compare their values side by side.\n5. Toggle Actual Data  Seasonally Adjusted to view raw values or changes relative to the 2019 baseline.\n6. Set Single Month or Compare Two Months — enable Split View to see both dates side by side with a swipe slider.', 
-//         {fontSize: '12px', color: '#' + COLORS.black, whiteSpace: 'pre-wrap', padding: '4px 0 0 0'})], 
-//         null, STYLES.section);
 
 var instructionPanel = ui.Panel([
   makeSectionTitle('How to use'), 
@@ -718,6 +740,8 @@ var instructionPanel = ui.Panel([
 // ─── PLACE SEARCH / QUICK NAVIGATION (v36 — City + CDP level only) ──────────
 
 var LV_PLACES = [
+  // ── Full Study Area ──
+  {name: 'Las Vegas Valley (Full Extent)', lon: -115.1398, lat: 36.1699, zoom: 11},
   // ── Incorporated cities ──
   {name: 'Las Vegas',        lon: -115.1398, lat: 36.1699, zoom: 12},
   {name: 'Henderson',        lon: -115.0361, lat: 36.0292, zoom: 12},
@@ -887,16 +911,27 @@ function _addData(map, image, vis, name) {
   map.layers().insert(0, ui.Map.Layer(image, vis, name, true));
 }
 
-// update in v38
+// update in v46
 function refreshMap() {
   var isSameDate = (state.fromYear === state.toYear && state.fromMonth === state.toMonth);
-  var isBaseline = (state.timeMode === 'adjusted');
+  var isBaseline = (state.dataType === 'adjusted');
 
   splitCheck.style().set('shown', !isSameDate || isBaseline);
   var actuallySplit = state.splitEnabled && (!isSameDate || isBaseline);
 
   var fromStr = MONTHS[state.fromMonth - 1] + ' ' + state.fromYear; var toStr = MONTHS[state.toMonth - 1] + ' ' + state.toYear;
-  leftDateLabel.setValue(isBaseline ? 'Baseline 2019' : (isSameDate || actuallySplit ? fromStr : fromStr + ' → ' + toStr)); rightDateLabel.setValue(toStr);
+  if (isBaseline) {
+    if (actuallySplit) {
+      leftDateLabel.setValue(fromStr + ' (vs 2019)');
+      rightDateLabel.setValue(toStr + ' (vs 2019)');
+    } else {
+      leftDateLabel.setValue(isSameDate ? fromStr + ' vs 2019' : fromStr + ' → ' + toStr + ' (vs 2019)');
+      rightDateLabel.setValue(toStr);
+    }
+  } else {
+    leftDateLabel.setValue(isSameDate || actuallySplit ? fromStr : fromStr + ' → ' + toStr);
+    rightDateLabel.setValue(toStr);
+  }
   _clearDataLayers(leftMap); _clearDataLayers(rightMap);
 
   if (actuallySplit) {
@@ -913,10 +948,17 @@ function refreshMap() {
     }
     rightDateLabel.style().set('shown', true);
 
-    if (state.activeLayer === 'greenspace') { _addData(leftMap, getFVCImage(state.fromYear, state.fromMonth), fvc_vis, 'FVC Before'); _addData(rightMap, getFVCImage(state.toYear, state.toMonth), fvc_vis, 'FVC After'); }
-    else if (state.activeLayer === 'temperature') { _addData(leftMap, getLSTImage(state.fromYear, state.fromMonth), lst_vis, 'LST Before'); _addData(rightMap, getLSTImage(state.toYear, state.toMonth), lst_vis, 'LST After'); }
-    else if (state.activeLayer === 'water') { _addData(leftMap, getETImage(state.fromYear, state.fromMonth), et_vis, 'Water Before'); _addData(rightMap, getETImage(state.toYear, state.toMonth), et_vis, 'Water After'); }
-    else { _addData(leftMap, getS2Composite(state.fromYear, state.fromMonth), s2_vis, 'S2 Before'); _addData(rightMap, getS2Composite(state.toYear, state.toMonth), s2_vis, 'S2 After'); }
+    if (isBaseline) {
+      if (state.activeLayer === 'greenspace') { _addData(leftMap, getVegDiffImage(state.fromYear, state.fromMonth), fvc_diff_vis, 'FVC Anomaly (From)'); _addData(rightMap, getVegDiffImage(state.toYear, state.toMonth), fvc_diff_vis, 'FVC Anomaly (To)'); }
+      else if (state.activeLayer === 'temperature') { _addData(leftMap, getLSTDiffImage(state.fromYear, state.fromMonth), lst_diff_vis, 'LST Anomaly (From)'); _addData(rightMap, getLSTDiffImage(state.toYear, state.toMonth), lst_diff_vis, 'LST Anomaly (To)'); }
+      else if (state.activeLayer === 'water') { _addData(leftMap, getETDiffImage(state.fromYear, state.fromMonth), et_diff_vis, 'Water Anomaly (From)'); _addData(rightMap, getETDiffImage(state.toYear, state.toMonth), et_diff_vis, 'Water Anomaly (To)'); }
+      else { _addData(leftMap, getS2Composite(state.fromYear, state.fromMonth), s2_vis, 'S2 Before'); _addData(rightMap, getS2Composite(state.toYear, state.toMonth), s2_vis, 'S2 After'); }
+    } else {
+      if (state.activeLayer === 'greenspace') { _addData(leftMap, getFVCImage(state.fromYear, state.fromMonth), fvc_vis, 'FVC Before'); _addData(rightMap, getFVCImage(state.toYear, state.toMonth), fvc_vis, 'FVC After'); }
+      else if (state.activeLayer === 'temperature') { _addData(leftMap, getLSTImage(state.fromYear, state.fromMonth), lst_vis, 'LST Before'); _addData(rightMap, getLSTImage(state.toYear, state.toMonth), lst_vis, 'LST After'); }
+      else if (state.activeLayer === 'water') { _addData(leftMap, getETImage(state.fromYear, state.fromMonth), et_vis, 'Water Before'); _addData(rightMap, getETImage(state.toYear, state.toMonth), et_vis, 'Water After'); }
+      else { _addData(leftMap, getS2Composite(state.fromYear, state.fromMonth), s2_vis, 'S2 Before'); _addData(rightMap, getS2Composite(state.toYear, state.toMonth), s2_vis, 'S2 After'); }
+    }
   } else {
     if (containerMode !== 'single') { 
       var savedView = {lon: currentViewPort.lon, lat: currentViewPort.lat, zoom: currentViewPort.zoom};
@@ -974,7 +1016,7 @@ function handleCompareClick(tract) {
 
 function updateDistributionCharts(tractGeom) {
   var isSameDate = (state.fromYear === state.toYear && state.fromMonth === state.toMonth);
-  var isBaseline = (state.timeMode === 'adjusted');
+  var isBaseline = (state.dataType === 'adjusted');
 
   if (isBaseline) {
       var vegDiffImg = getVegDiffImage(state.toYear, state.toMonth);
@@ -1384,6 +1426,7 @@ var exploreBottom = ui.Panel([statsPanel, chartsPanel, trendPanel]);
 var comparePromptPanel = ui.Panel([], null, STYLES.section);
 var compareContent = ui.Panel([], null, STYLES.section);
 
+
 var aboutContent = ui.Panel([
   makeSectionTitle('About this Dashboard'),
   ui.Label(
@@ -1452,9 +1495,9 @@ var leftSidebar = ui.Panel([
   instructionPanel,      // "How to use"
   navPanel,              // Quick navigation (v36)
   controlsPanel,         // "Map controls"
-  analysisPanel,         // "Analysis settings"
   exploreTop,            // "Select a tract" (Shows in Explore tab)
   comparePromptPanel,    // "Compare areas" (Shows in Compare tab) 
+  analysisPanel,         // "Analysis settings"
   exploreBottom,         // Stats/trends (Explore tab)
   compareContent,        // Stats/trends (Compare tab)
   aboutContent           // About tab

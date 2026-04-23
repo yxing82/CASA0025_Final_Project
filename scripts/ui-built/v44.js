@@ -1,7 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════════
-// LAS VEGAS VALLEY TURF TRACKER — UI FRAMEWORK v41
-// v41: Updated "About" tab with full project aim, objectives, and data sources
-// solve the split view and zoom issues again in this version -- yh there's a bug againnn
+// LAS VEGAS VALLEY TURF TRACKER — UI FRAMEWORK v44
+// add back satellite layer to "map controls"
 // ═══════════════════════════════════════════════════════════════════════
 
 // ─── NEW: CONFIGURATION OBJECT ──────────────────────────────────────
@@ -489,7 +488,20 @@ function makeSectionTitle(text) { return ui.Label(text, STYLES.subtitle); }
 function makeSeparator() { return ui.Panel(null, null, {height: '1px', backgroundColor: '#' + COLORS.grayMid, margin: '8px 0'}); }
 function makeStatCard(label) { var valLabel = ui.Label('—', STYLES.statValue); var nameLabel = ui.Label(label, STYLES.statLabel); var deltaLabel = ui.Label('', {fontSize: '11px'}); return {panel: ui.Panel([nameLabel, valLabel, deltaLabel], null, STYLES.card), name: nameLabel, val: valLabel, delta: deltaLabel}; }
 function styleTabButton(btn, active) { btn.style().set({backgroundColor: active ? '#E8F0F7' : UI_COLORS.inactiveFill, color: active ? '#' + COLORS.primaryDark : UI_COLORS.inactiveText, border: active ? '2px solid #' + COLORS.primary : '1px solid #' + COLORS.grayMid, padding: '8px 16px', margin: '0 6px 0 0', fontSize: '12px', fontWeight: active ? 'bold' : 'normal'}); }
-function stylePillButton(btn, active) { btn.style().set({backgroundColor: active ? '#E8F0F7' : UI_COLORS.inactiveFill, color: active ? '#' + COLORS.primaryDark : UI_COLORS.inactiveText, border: active ? '2px solid #' + COLORS.primary : '1px solid #' + COLORS.grayMid, padding: '6px 12px', margin: '2px 6px 2px 0', fontSize: '11px', fontWeight: active ? 'bold' : 'normal'}); }
+// update in v43
+function stylePillButton(btn, active) { 
+  btn.style().set({
+    backgroundColor: active ? '#E8F0F7' : UI_COLORS.inactiveFill, 
+    color: active ? '#' + COLORS.primaryDark : UI_COLORS.inactiveText, 
+    border: active ? '2px solid #' + COLORS.primary : '1px solid #' + COLORS.grayMid, 
+    padding: '4px 8px',       
+    margin: '2px 4px 2px 0',  
+    fontSize: '11px', 
+    fontWeight: active ? 'bold' : 'normal',
+    stretch: 'horizontal',   // forces equal width distribution
+    textAlign: 'center'      // keeps text centered in the wider button
+  }); 
+}
 
 // ─── SECTION 6: MAPS ────────────────────────────────────────────────
 
@@ -636,17 +648,29 @@ function updateTimeModeUI() {
   }
 }
 
+// update in v43 for makeLayerPill and updateLayerPills
 function makeLayerPill(label, key) {
   var btn = ui.Button(label, function() { state.activeLayer = key; updateLayerPills(); updateTimeModeUI(); refreshMap(); });
-  btn._key = key; btn.style().set({fontSize: '11px', padding: '6px 12px', margin: '2px 6px 2px 0', border: '0px solid transparent'}); return btn;
+  btn._key = key; 
+  btn.style().set({
+    fontSize: '11px', 
+    padding: '4px 8px', 
+    margin: '2px 4px 2px 0', 
+    border: '0px solid transparent',
+    stretch: 'horizontal',   
+    textAlign: 'center'
+  }); 
+  return btn;
 }
 
+var pillSat       = makeLayerPill('Satellite', 'satellite');
 var pillGreen     = makeLayerPill('Greenness', 'greenspace');
 var pillTemp      = makeLayerPill('Heat', 'temperature');
-var pillWater     = makeLayerPill('Water Consumption', 'water');
+var pillWater     = makeLayerPill('Water', 'water'); // Shortened label to fit 4 across
+
 
 function updateLayerPills() { 
-  [pillGreen, pillTemp, pillWater].forEach(function(p) { 
+  [pillGreen, pillTemp, pillWater, pillSat].forEach(function(p) { 
     stylePillButton(p, p._key === state.activeLayer); 
   }); 
 }
@@ -681,22 +705,20 @@ timeModeSel.onChange(function(val) {
 var splitCheck = ui.Checkbox('Split view', true); splitCheck.style().set({fontSize: '13px', color: '#' + COLORS.black}); splitCheck.onChange(function(v) { state.splitEnabled = v; refreshMap(); });
 
 
-
+// update in v43
 // BOX 1: Map controls
 var controlsPanel = ui.Panel([
   makeSectionTitle('Map controls'), 
   ui.Label('Layer', STYLES.muted), 
-  ui.Panel([pillGreen, pillTemp, pillWater], ui.Panel.Layout.flow('horizontal'))
+  ui.Panel({
+    widgets: [pillGreen, pillTemp, pillWater, pillSat], 
+    layout: ui.Panel.Layout.flow('horizontal'),
+    style: {stretch: 'horizontal'} 
+  })
 ], null, STYLES.section);
 
 // BOX 2: Analysis modes
 var analysisPanel = ui.Panel([makeSectionTitle('Analysis modes'), ui.Label('Data type', STYLES.muted), dataTypeSel, makeSeparator(), ui.Label('Time frame', STYLES.muted), timeModeSel, fromRow, toRow, makeSeparator(), splitCheck], null, STYLES.section);
-
-// var instructionPanel = ui.Panel([makeSectionTitle('How to use'), 
-//     ui.Label(
-//         '1. Pick a layer (Greenness / Heat / Water) in Map Controls.\n2. Use Quick Navigation to jump to any city or community in the valley.\n3. Tract Profile: click a tract on the map to view its statistics, distribution charts, and monthly trends.\n4. Compare Tracts: click two tracts to compare their values side by side.\n5. Toggle Actual Data  Seasonally Adjusted to view raw values or changes relative to the 2019 baseline.\n6. Set Single Month or Compare Two Months — enable Split View to see both dates side by side with a swipe slider.', 
-//         {fontSize: '12px', color: '#' + COLORS.black, whiteSpace: 'pre-wrap', padding: '4px 0 0 0'})], 
-//         null, STYLES.section);
 
 var instructionPanel = ui.Panel([
   makeSectionTitle('How to use'), 
@@ -1384,6 +1406,7 @@ var exploreBottom = ui.Panel([statsPanel, chartsPanel, trendPanel]);
 var comparePromptPanel = ui.Panel([], null, STYLES.section);
 var compareContent = ui.Panel([], null, STYLES.section);
 
+
 var aboutContent = ui.Panel([
   makeSectionTitle('About this Dashboard'),
   ui.Label(
@@ -1452,9 +1475,9 @@ var leftSidebar = ui.Panel([
   instructionPanel,      // "How to use"
   navPanel,              // Quick navigation (v36)
   controlsPanel,         // "Map controls"
-  analysisPanel,         // "Analysis settings"
   exploreTop,            // "Select a tract" (Shows in Explore tab)
   comparePromptPanel,    // "Compare areas" (Shows in Compare tab) 
+  analysisPanel,         // "Analysis settings"
   exploreBottom,         // Stats/trends (Explore tab)
   compareContent,        // Stats/trends (Compare tab)
   aboutContent           // About tab
