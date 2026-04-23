@@ -610,3 +610,22 @@ where, $e_{kb}$ is the reflectance of endmember $k$ in band $b$, and, for a give
 Across all months, the SMA model achieves a spectral RMSE of 0.011 for our reflectance values which have been scaled between 0 and 1. Past research has established a spectral RMSE threshold of 0.025 for acceptable SMA model coverage (Roberts et al. 1998), indicating that, even for a SMA model like ours with more endmembers, the model captures the spectral dimensionality of our area well.
 
 There still remains future potential for improvement with the model. Aggregated monthly RMSEs do reveal slight seasonal changes in accuracy (with winter months achieving a lower RMSE), and visual analysis indicates that errors are higher for bright impervious materials such as the white roofs of large corporate or government buildings. 
+
+## References
+Las Vegas Review-Journal (2026) *High court paves way for more parties to challenge ‘nonfunctional grass’ irrigation ban*. Available at: <https://www.reviewjournal.com/news/civil-courts/high-court-paves-way-for-more-parties-to-challenge-nonfunctional-grass-irrigation-ban-3790366/> (Accessed: 23 April 2026).
+
+Mejía Valencia, J.F. et al. (2023) *The effect of removal of all non-functional turf in Las Vegas: tradeoffs between water conservation, excessive heat and storminess*. Available at: <https://www.researchgate.net/publication/370171341_The_effect_of_removal_of_all_non-functional_turf_in_Las_Vegas_tradeoffs_between_water_conservation_excessive_heat_and_storminess> (Accessed: 23 April 2026).
+
+Nevada Legislature / LegiScan (2021) *Nevada Assembly Bill 356 (81st Legislature): Makes various changes relating to the conservation of water*. Available at: <https://legiscan.com/NV/bill/AB356/2021> (Accessed: 23 April 2026).
+
+News 3 Las Vegas (2026) *Case No. A-26-937025-C Department 11* [PDF court complaint]. Available at: <https://news3lv.com/resources/pdf/ea5538b8-1ef6-4872-8e0d-fc450e051355-A26937025CComplaintCOMPCIV.pdf> (Accessed: 23 April 2026).
+
+Saher, N., Mubeen, M., Iqbal, A., Andlib, Z., Ahmad, A., Hussain, A., Bukhari, S.S.H., Adnan, M. and Hammad, H.M. (2018) ‘Trend analysis of Las Vegas land cover and temperature using remote sensing’, *Land*, 7(4), p. 135. Available at: <https://www.mdpi.com/2073-445X/7/4/135> (Accessed: 23 April 2026).
+
+Schmidt, J.C., Yackulic, C.B. and Kuhn, E. (2023) ‘The Colorado River water crisis: Its origin and the future’, *WIREs Water*, 10(6), e1672. Available at: <https://wires.onlinelibrary.wiley.com/doi/10.1002/wat2.1672> (Accessed: 23 April 2026).
+
+Southern Nevada Water Authority (2000) *Xeriscape Conversion Study*. Available at: <https://www.snwa.com/assets/pdf/reports-xeriscape.pdf> (Accessed: 23 April 2026).
+
+Southern Nevada Water Authority (2026) *SNWA Water Resource Plan: 2026 Appendices*. Available at: <https://www.snwa.com/assets/pdf/water-resource-plan-appendices-2026.pdf> (Accessed: 23 April 2026).
+
+Wu, C. and Murray, A.T. (2003) ‘Estimating impervious surface distribution by spectral mixture analysis’, *Remote Sensing of Environment*, 84(4), pp. 493–505. Available at: <https://www.sciencedirect.com/science/article/pii/S0034425702001360> (Accessed: 23 April 2026).
