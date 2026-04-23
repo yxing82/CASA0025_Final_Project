@@ -1,3 +1,21 @@
+/* ---------- Disable sticky / scroll-following navbar ---------- */
+#quarto-header,
+#quarto-header.headroom,
+#quarto-header.headroom--pinned,
+#quarto-header.headroom--unpinned {
+    position: relative !important;
+    top: 0 !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+    will-change: auto !important;
+}
+
+body.nav-fixed,
+body.quarto-light.nav-fixed,
+body.quarto-dark.nav-fixed {
+    padding-top: 0 !important;
+}
+
 /* ---------- Navbar with image ---------- */
 #quarto-header .navbar {
     background-image: url("images/banner.jpeg");
@@ -71,18 +89,18 @@ h1, .h1 {
 h2, .h2 {
     font-size: 2.2rem;
     font-weight: 600;
-    color: #5a5d3c;
+    color: #7a8152;
 }
 
 h3, .h3 {
     font-size: 1.6rem;
     font-weight: 500;
-    color: #7b7f5f;
+    color: #989d78;
 }
 
 /* ---------- Links ---------- */
 a {
-    color: #5a5d3c;
+    color: #7a8152;
     text-decoration: none;
     font-weight: 500;
 }
@@ -104,7 +122,7 @@ a:hover {
 
 /* ---------- Footer ---------- */
 .footer-items .nav-link {
-    color: #5a5d3c !important;
+    color: #7a8152 !important;
     font-size: 0.95rem;
 }
 
@@ -113,12 +131,96 @@ p {
     font-size: 1.1rem;
 }
 
----------- Inline Code ----------
+/* ---------- Inline Code ---------- */
 code {
-    background-color: rgba(231, 225, 211, 0.6);
     padding: 0.2em 0.4em;
     border-radius: 4px;
     font-family: ui-monospace, "SF Mono", "Roboto Mono", "Courier New", monospace;
+}
+
+/* general inline code appearance */
+body.quarto-light code {
+    background-color: rgba(231, 225, 211, 0.6);
+    color: #6f42c1;
+}
+
+body.quarto-dark code {
+    background-color: rgba(70, 70, 70, 0.9);
+    color: #ffffff;
+}
+
+/* ---------- Code Blocks ---------- */
+/* light mode code blocks */
+body.quarto-light pre,
+body.quarto-light .sourceCode,
+body.quarto-light div.sourceCode {
+    background-color: #f8f7f4 !important;
+    color: #2f2a24 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 8px;
+}
+
+/* remove inner border / nested box in light mode */
+body.quarto-light pre code,
+body.quarto-light .sourceCode code,
+body.quarto-light div.sourceCode code {
+    background: transparent !important;
+    color: #2f2a24 !important;
+    border: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+/* force syntax-highlighted text readable in light mode */
+body.quarto-light .sourceCode span,
+body.quarto-light pre span {
+    color: #2f2a24 !important;
+}
+
+/* dark mode code blocks — same style logic, no inner border */
+body.quarto-dark pre,
+body.quarto-dark .sourceCode,
+body.quarto-dark div.sourceCode {
+    background-color: #2b2b2b !important;
+    color: #f3f3f3 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 8px;
+}
+
+/* remove inner border / nested box in dark mode */
+body.quarto-dark pre code,
+body.quarto-dark .sourceCode code,
+body.quarto-dark div.sourceCode code {
+    background: transparent !important;
+    color: #f3f3f3 !important;
+    border: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+/* force syntax-highlighted text readable in dark mode */
+body.quarto-dark .sourceCode span,
+body.quarto-dark pre span {
+    color: #f3f3f3 !important;
+}
+
+/* ---------- Custom highlighted inline words like `About` ---------- */
+/* lighter grey background in light mode */
+body.quarto-light p code,
+body.quarto-light li code,
+body.quarto-light td code {
+    background-color: #ececec !important;
+    color: #6f42c1 !important;
+}
+
+/* dark grey background in dark mode */
+body.quarto-dark p code,
+body.quarto-dark li code,
+body.quarto-dark td code {
+    background-color: #4a4a4a !important;
+    color: #ffffff !important;
 }
 
 /* ---------- Table Styles ---------- */
