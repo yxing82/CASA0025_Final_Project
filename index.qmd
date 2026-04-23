@@ -338,7 +338,7 @@ This application offers an interactive interface for exploring spatial patterns,
 
 :::{.column-page}
 
-<iframe src='https://tribal-monolith-488411-r8.projects.earthengine.app/view/casa0025finalproject' width='100%' height='700px'></iframe>
+<iframe src='https://tribal-monolith-488411-r8.projects.earthengine.app/view/lasvegasvalleyturftracker' width='100%' height='700px'></iframe>
 
 :::
 
