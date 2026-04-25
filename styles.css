@@ -338,9 +338,9 @@ body.quarto-dark td {
 /* ---------- Clickable Contents Dropdown ---------- */
 .contents-dropdown {
     position: fixed;
-    top: 5.25rem;              /* moved down so it does NOT cover navbar icons */
+    top: 1rem !important;
     right: 1.5rem;
-    z-index: 800;              /* lower than navbar/header */
+    z-index: 800;
     width: 260px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
 }
@@ -432,7 +432,7 @@ body.quarto-dark .contents-menu a:hover {
 @media (max-width: 900px) {
     .contents-dropdown {
         position: relative;
-        top: auto;
+        top: auto !important;
         right: auto;
         width: 100%;
         max-width: 320px;
@@ -449,4 +449,11 @@ html {
 h1, h2, h3, h4, h5, h6,
 [id] {
     scroll-margin-top: 7rem;
+}
+
+/* ---------- Hide Contents tab when it overlaps the embedded app ---------- */
+.contents-dropdown.hide-over-app {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
 }
