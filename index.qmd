@@ -7,13 +7,16 @@ css: styles.css
 
 This project develops an interactive web application to assess green space loss and related environmental impacts in the Las Vegas Valley. In the context of recent tension around regional policy to remove “nonfunctional” turf, the application visualizes local changes in green space alongside shifts in land surface temperature and water consumption. A map-based dashboard enables tract-level exploration of spatial patterns and temporal change. By linking policy implementation to measurable landscape changes, the project directly supports more informed evaluation of its impact on water conservation and environmental conditions.
 
+
 ## Problem Statement
 
-The Colorado River Basin, a system providing water to millions across the southwestern US, is [in crisis](https://wires.onlinelibrary.wiley.com/doi/10.1002/wat2.1672): runoff into the basin continues to decline while consumption levels remain constant. To reduce water consumption across the Las Vegas Valley, [Assembly Bill 356](https://legiscan.com/NV/bill/AB356/2021) was passed in 2021, prohibiting the use of water from the basin to irrigate “[nonfunctional” turf](https://www.snwa.com/assets/pdf/water-resource-plan-appendices-2026.pdf) (green space with no clear purpose) by the start of 2027. In January 2026, a group of residents [sued](https://news3lv.com/resources/pdf/ea5538b8-1ef6-4872-8e0d-fc450e051355-A26937025CComplaintCOMPCIV.pdf) the Southwestern Nevada Water Authority (SNWA), claiming that the removal of these green spaces have led to negative downstream environmental effects. The consequences of the policy remain poorly documented, creating a gap between regulatory action and observable evidence.
+The Colorado River Basin, a system providing water to millions across the southwestern US, is [in crisis](https://wires.onlinelibrary.wiley.com/doi/10.1002/wat2.1672): runoff into the basin continues to decline while consumption levels remain constant. To reduce water consumption across the Las Vegas Valley, [Assembly Bill 356](https://legiscan.com/NV/bill/AB356/2021) was passed in 2021, prohibiting the use of water from the basin to irrigate “[nonfunctional” turf](https://www.snwa.com/assets/pdf/water-resource-plan-appendices-2026.pdf) (green space with no clear purpose) by the start of 2027. In January 2026, a group of residents [sued](https://news3lv.com/resources/pdf/ea5538b8-1ef6-4872-8e0d-fc450e051355-A26937025CComplaintCOMPCIV.pdf) the Southern Nevada Water Authority (SNWA), claiming that the removal of these green spaces have led to negative downstream environmental effects. The consequences of the policy remain poorly documented, creating a gap between regulatory action and observable evidence.
+
 
 ## End User
 
 This dashboard is designed for Las Vegas Valley policymakers and residents, including those involved in [ongoing](https://www.reviewjournal.com/news/civil-courts/high-court-paves-way-for-more-parties-to-challenge-nonfunctional-grass-irrigation-ban-3790366/) litigation. Analysis has shown that turf irrigation in the region requires [substantial](https://www.snwa.com/assets/pdf/reports-xeriscape.pdf) amounts of water, especially when compared to more sustainable landscaping alternatives. But getting rid of the turf to reduce water consumption has considerable tradeoffs: academic research has [demonstrated](https://www.researchgate.net/publication/370171341_The_effect_of_removal_of_all_non-functional_turf_in_Las_Vegas_tradeoffs_between_water_conservation_excessive_heat_and_storminess) that removing nonfunctional turf leads to net local warming. Compiling turf loss with surface temperature and water consumption estimates allows residents and policymakers to view changes and patterns over time at a local level. The dashboard, thus, becomes a tool in which legal arguments can be grounded in measurable environmental evidence.
+
 
 ## Data
 
@@ -54,6 +57,8 @@ This dashboard is designed for Las Vegas Valley policymakers and residents, incl
  <td><a href="https://catalog.data.gov/dataset/tiger-line-shapefile-2020-nation-u-s-2020-census-urban-area">Link</a></td>
   </tr>
 </table>
+
+
 ## Methodology
 ### Green Space Detection
 
@@ -322,6 +327,7 @@ print(totalRMSE.get('rmse'));
 ```
 :::
 
+
 ### Water Consumption
 
 In arid regions like Las Vegas, evapotranspiration (ET) serves as a strong proxy for water consumption: with minimal rainfall, almost all ET is the result of irrigation. ET is modeled by combining satellite-derived land surface temperature and vegetation indices with meteorological variables such as wind speed, humidity, and solar radiation. The resulting value measures the total flux of water from the land surface to the atmosphere through both soil evaporation and plant transpiration.
@@ -330,15 +336,17 @@ In arid regions like Las Vegas, evapotranspiration (ET) serves as a strong proxy
 
 All of our variables contain an element of seasonality. We observe, for example, that green space shrinks in winter months, while temperatures climb in summer months. When we see that a neighborhood has lost green space from June to December, has this green space actually been removed? Or is this just typical seasonal fluctuation? To try to better separate routine seasonality from the true signal of interest, we compare each month in 2020-2025 to the same month from 2019. The resulting comparison data filters out some sense of seasonal fluctuation and enables users to more easily compare changes across any timeframe.
 
+
 ## Interface
 
 This application offers an interactive interface for exploring spatial patterns, temporal change, and tract-level differences through comparative visualisations, statistical summaries, and local insights. The map-based dashboard design and flexible selection controls aims to support clear navigation, easy comparison, and informed interpretation. More details can be found in the panels under `About` and `How to use`.
+
 
 ## The Application
 
 :::{.column-page}
 
-<iframe src='https://tribal-monolith-488411-r8.projects.earthengine.app/view/lasvegasvalleyturftracker' width='100%' height='700px'></iframe>
+<iframe src='https://project-ba3da252-127d-4b0d-bf0.projects.earthengine.app/view/turf-tracker#layer=satellite;from=2020-6;to=2023-6;mode=compare;data=actual;split=1;;' width='100%' height='700px'></iframe>
 
 :::
 
@@ -347,6 +355,10 @@ This application offers an interactive interface for exploring spatial patterns,
 ### Data Preparation and Precomputation
 
 To keep the interface fast and interactive, monthly image collections are pre-computed and summarised within the metro boundaries, making it easier to compare changes across time periods and against a 2019 baseline.
+
+#### Pre-processing Study Area and Tract Boundaries
+The study area boundary is compiled from a TIGER shapefile combining the Las Vegas–Henderson and Boulder City urban areas, uploaded as a Google Earth Engine FeatureCollection asset. Census tract geometries are sourced from the [TIGER 2020 census tracts](https://developers.google.com/earth-engine/datasets/catalog/TIGER_2020_TRACT) GEE FeatureCollection, clipped and filtered to only retain tracts falling within the study area boundary. The resulting tracts are then simplified to reduce vertex count and exported as a separate pre-processed asset, ensuring the boundary overlay renders quickly without repeated server-side geometry operations at runtime. All raster layers are also pre-clipped to the study area during the asset-creation stage.
+
 
 #### Precomputed Layers
 
@@ -363,12 +375,14 @@ Each layer is aggregated to both the study area and census tract level. When a t
 
 #### Quick Navigation
 
-At startup, the map displays the Las Vegas study area divided by census tracts. To streamline exploration across the area, the application provides a “Quick Navigation” dropdown, which allows users to jump to specific incorporated cities (like Henderson) or unincorporated Census-Designated Places (CDPs). Selecting a location automatically pans and scales the synchronized maps to the optimal zoom level.
+At startup, the map displays the Las Vegas study area divided by census tracts. To streamline exploration across the area, the application provides a “Quick Navigation” dropdown, which allows users to jump to specific incorporated cities (like Henderson) or unincorporated Census-Designated Places (CDPs) or instantly reset the view to the full study area. Selecting a location automatically pans and scales the synchronized maps to the optimal zoom level.
 
 ::: {.scroll-container style="overflow-y: scroll; height: 300px; padding:20px "}
 
 ``` js
 var LV_PLACES = [
+ // ── Full Study Area ──
+ {name: 'Las Vegas Valley (Full Extent)', lon: -115.1398, lat: 36.1699, zoom: 11},
  // ── Incorporated cities ──
  {name: 'Las Vegas',        lon: -115.1398, lat: 36.1699, zoom: 12},
  {name: 'Henderson',        lon: -115.0361, lat: 36.0292, zoom: 12},
@@ -412,60 +426,6 @@ var navPanel = ui.Panel([
 ```
 :::
 
-#### Interactive Tract Profiling
-
-Using the “Tract Profile” view, users can click any single tract to instantly generate a local profile. This triggers the UI to populate statistical cards (e.g. green space changes, surface temperature changes, water consumption changes) and dynamic distribution histograms, which calculate based on the selected time ranges.
-
-::: {.scroll-container style="overflow-y: scroll; height: 300px; padding:20px "}
-
-```js
-function handleMapClick(coords) {
- if (state.currentView === 'about') return;
- var point = ee.Geometry.Point(coords.lon, coords.lat); var clicked = tracts.filterBounds(point).first();
- clicked.evaluate(function(f) { if (!f) return; var tract = ee.Feature(f); if (state.currentView === 'explore') updateSidePanel(tract); else if (state.currentView === 'compare') handleCompareClick(tract); });
-}
-leftMap.onClick(handleMapClick); rightMap.onClick(handleMapClick);
-```
-:::
-
-#### Comparative Analysis
-
-Under the “Compare Tracts” tab, users can evaluate spatial disparities by selecting any two distinct tracts directly on the map. The application dynamically builds side-by-side statistical cards and overlays the monthly metrics of both tracts onto synchronized line charts, which allows for a direct visual comparison of their environmental trends
-
-
-::: {.scroll-container style="overflow-y: scroll; height: 300px; padding:20px "}
-
-```js
- var fvcChart = ui.Chart.feature.byFeature({
-   features: table, xProperty: 'date', yProperties: ['FVC_A', 'FVC_B']
- }).setChartType('LineChart').setOptions({
-   title: 'Monthly Greenness Trend\nTract ' + geoidA + ' vs Tract ' + geoidB,
-   hAxis: {title: 'Month', slantedText: true, slantedTextAngle: 45, textStyle: {fontSize: 8}},
-   vAxis: {title: 'Mean FVC', viewWindow: {min: 0, max: 0.3}},
-   legend: {position: 'top'}, lineWidth: 3, pointSize: 0, interpolateNulls: true,
-   series: {0: {color: colorA, labelInLegend: 'Tract ' + geoidA}, 1: {color: colorB, labelInLegend: 'Tract ' + geoidB}},
-   chartArea: {left: 60, top: 45, width: '76%', height: '56%'}, fontSize: 11});
- var lstChart = ui.Chart.feature.byFeature({
-   features: table, xProperty: 'date', yProperties: ['LST_A', 'LST_B']
- }).setChartType('LineChart').setOptions({
-   title: 'Monthly Land Surface Temperature\nTract ' + geoidA + ' vs Tract ' + geoidB,
-   hAxis: {title: 'Month', slantedText: true, slantedTextAngle: 45, textStyle: {fontSize: 8}},
-   vAxis: {title: 'LST Celsius', viewWindow: {min: 15, max: 70}},
-   legend: {position: 'top'}, lineWidth: 3, pointSize: 0, interpolateNulls: true,
-   series: {0: {color: colorA, labelInLegend: 'Tract ' + geoidA}, 1: {color: colorB, labelInLegend: 'Tract ' + geoidB}},
-   chartArea: {left: 60, top: 45, width: '76%', height: '56%'}, fontSize: 11});
- var etCompareChart = ui.Chart.feature.byFeature({
-   features: table, xProperty: 'date', yProperties: ['ET_A', 'ET_B']
- }).setChartType('LineChart').setOptions({
-   title: 'Monthly Water Consumption\nTract ' + geoidA + ' vs Tract ' + geoidB,
-   hAxis: {title: 'Month', slantedText: true, slantedTextAngle: 45, textStyle: {fontSize: 8}},
-   vAxis: {title: 'Mean water consumption (mm)', viewWindow: {min: 0, max: 200}},
-   legend: {position: 'top'}, lineWidth: 3, pointSize: 0, interpolateNulls: true,
-   series: {0: {color: colorA, labelInLegend: 'Tract ' + geoidA}, 1: {color: colorB, labelInLegend: 'Tract ' + geoidB}},
-   chartArea: {left: 60, top: 45, width: '76%', height: '56%'}, fontSize: 11});
-```
-:::
- 
 #### Temporal Split-Panel 
 To visually assess environmental shifts between any 2 selected months, the application features a synchronized split-screen map with a draggable divider for “start month” and “end month” comparisons
 
@@ -483,8 +443,14 @@ var leftMap = ui.Map(); var rightMap = ui.Map();
  m.setOptions('Custom', {Custom: [{stylers: [{saturation: -75}]},
  {featureType: 'poi', stylers: [{visibility: 'off'}]},
  {featureType: 'transit', stylers: [{visibility: 'off'}]}]}); });
-// Synchronized split panel map for temporal
  var mapLinker = ui.Map.Linker([leftMap, rightMap]);
+
+
+// PERFORMANCE: Add boundary overlay once as a permanent layer on each map.
+// These layers are NEVER removed — refreshMap only swaps the data layer below them.
+// This eliminates ~18s of redundant Collection.style + asset loading per refresh.
+leftMap.addLayer(combinedVectorOverlay, {}, 'Boundaries');
+rightMap.addLayer(combinedVectorOverlay, {}, 'Boundaries');
 
 
 var leftDateLabel = ui.Label('Jun 2020',
@@ -518,6 +484,64 @@ var mapContainer = ui.Panel([splitPanel], null, {stretch: 'both', backgroundColo
 ```
 :::
 
+#### Interactive Tract Profiling
+
+Using the “Tract Profile” view, users can click any single tract to instantly generate a local profile. This triggers the UI to populate statistical cards (e.g. green space changes, surface temperature changes, water consumption changes) and dynamic distribution histograms, which calculate based on the selected time ranges.
+
+::: {.scroll-container style="overflow-y: scroll; height: 300px; padding:20px "}
+
+```js
+function handleMapClick(coords) {
+ if (state.currentView === 'about') return;
+ var point = ee.Geometry.Point(coords.lon, coords.lat); var clicked = tracts.filterBounds(point).first();
+ clicked.evaluate(function(f) { if (!f) return; var tract = ee.Feature(f); if (state.currentView === 'explore') updateSidePanel(tract); else if (state.currentView === 'compare') handleCompareClick(tract); });
+}
+leftMap.onClick(handleMapClick); rightMap.onClick(handleMapClick);
+```
+:::
+
+
+#### Comparative Analysis
+
+Under the “Compare Tracts” tab, users can evaluate spatial disparities by selecting any two distinct tracts directly on the map. The application dynamically builds side-by-side statistical cards and overlays the monthly metrics of both tracts onto synchronized line charts, which allows for a direct visual comparison of their environmental trends
+
+
+::: {.scroll-container style="overflow-y: scroll; height: 300px; padding:20px "}
+
+```js
+// FVC turf loss charts
+ var fvcChart = ui.Chart.feature.byFeature({
+   features: table, xProperty: 'date', yProperties: ['FVC_A', 'FVC_B']
+ }).setChartType('LineChart').setOptions({
+   title: 'Monthly Greenness Trend\nTract ' + geoidA + ' vs Tract ' + geoidB,
+   hAxis: {title: 'Month', slantedText: true, slantedTextAngle: 45, textStyle: {fontSize: 8}},
+   vAxis: {title: 'Mean FVC', viewWindow: {min: 0, max: 0.3}},
+   legend: {position: 'top'}, lineWidth: 3, pointSize: 0, interpolateNulls: true,
+   series: {0: {color: colorA, labelInLegend: 'Tract ' + geoidA}, 1: {color: colorB, labelInLegend: 'Tract ' + geoidB}},
+   chartArea: {left: 60, top: 45, width: '76%', height: '56%'}, fontSize: 11});
+// LST temperature charts 
+var lstChart = ui.Chart.feature.byFeature({
+   features: table, xProperty: 'date', yProperties: ['LST_A', 'LST_B']
+ }).setChartType('LineChart').setOptions({
+   title: 'Monthly Land Surface Temperature\nTract ' + geoidA + ' vs Tract ' + geoidB,
+   hAxis: {title: 'Month', slantedText: true, slantedTextAngle: 45, textStyle: {fontSize: 8}},
+   vAxis: {title: 'LST Celsius', viewWindow: {min: 15, max: 70}},
+   legend: {position: 'top'}, lineWidth: 3, pointSize: 0, interpolateNulls: true,
+   series: {0: {color: colorA, labelInLegend: 'Tract ' + geoidA}, 1: {color: colorB, labelInLegend: 'Tract ' + geoidB}},
+   chartArea: {left: 60, top: 45, width: '76%', height: '56%'}, fontSize: 11});
+// Water consumption charts 
+var etCompareChart = ui.Chart.feature.byFeature({
+   features: table, xProperty: 'date', yProperties: ['ET_A', 'ET_B']
+ }).setChartType('LineChart').setOptions({
+   title: 'Monthly Water Consumption\nTract ' + geoidA + ' vs Tract ' + geoidB,
+   hAxis: {title: 'Month', slantedText: true, slantedTextAngle: 45, textStyle: {fontSize: 8}},
+   vAxis: {title: 'Mean water consumption (mm)', viewWindow: {min: 0, max: 200}},
+   legend: {position: 'top'}, lineWidth: 3, pointSize: 0, interpolateNulls: true,
+   series: {0: {color: colorA, labelInLegend: 'Tract ' + geoidA}, 1: {color: colorB, labelInLegend: 'Tract ' + geoidB}},
+   chartArea: {left: 60, top: 45, width: '76%', height: '56%'}, fontSize: 11});
+```
+:::
+
 #### Baseline Mode
 To make the analysis more robust, we account for natural weather fluctuations. Specifically, users can toggle “Seasonally adjusted data” from “Actual data”. This application then instantly switches the map and charts from raw data to data relative to the same month in 2019.
 
@@ -526,7 +550,7 @@ To make the analysis more robust, we account for natural weather fluctuations. S
 ```js
 function refreshMap() {
  var isSameDate = (state.fromYear === state.toYear && state.fromMonth === state.toMonth);
- var isBaseline = (state.timeMode === 'adjusted');
+ var isBaseline = (state.dataType === 'adjusted');
 
 
  splitCheck.style().set('shown', !isSameDate || isBaseline);
@@ -534,52 +558,79 @@ function refreshMap() {
 
 
  var fromStr = MONTHS[state.fromMonth - 1] + ' ' + state.fromYear; var toStr = MONTHS[state.toMonth - 1] + ' ' + state.toYear;
- leftDateLabel.setValue(isBaseline ? 'Baseline 2019' : (isSameDate || actuallySplit ? fromStr : fromStr + ' → ' + toStr)); rightDateLabel.setValue(toStr);
- leftMap.layers().reset(); rightMap.layers().reset();
+ if (isBaseline) {
+   if (actuallySplit) {
+     leftDateLabel.setValue(fromStr + ' (vs 2019)');
+     rightDateLabel.setValue(toStr + ' (vs 2019)');
+   } else {
+     leftDateLabel.setValue(isSameDate ? fromStr + ' vs 2019' : fromStr + ' → ' + toStr + ' (vs 2019)');
+     rightDateLabel.setValue(toStr);
+   }
+ } else {
+   leftDateLabel.setValue(isSameDate || actuallySplit ? fromStr : fromStr + ' → ' + toStr);
+   rightDateLabel.setValue(toStr);
+ }
+ _clearDataLayers(leftMap); _clearDataLayers(rightMap);
 
 
  if (actuallySplit) {
-   if (containerMode !== 'split') { mapContainer.widgets().reset([splitPanel]); containerMode = 'split'; }
+   if (containerMode !== 'split') {
+     var savedView = {lon: currentViewPort.lon, lat: currentViewPort.lat, zoom: currentViewPort.zoom};
+     mapContainer.widgets().reset([splitPanel]);
+     containerMode = 'split';
+     if (mapInitialized) {
+       ee.Number(0).evaluate(function() {
+         leftMap.setCenter(savedView.lon, savedView.lat, savedView.zoom);
+         rightMap.setCenter(savedView.lon, savedView.lat, savedView.zoom);
+       });
+     }
+   }
    rightDateLabel.style().set('shown', true);
 
 
-   if (state.activeLayer === 'greenspace') {
-     leftMap.addLayer(getFVCImage(state.fromYear, state.fromMonth), fvc_vis, 'FVC Before');
-     rightMap.addLayer(getFVCImage(state.toYear, state.toMonth), fvc_vis, 'FVC After'); }
-   else if (state.activeLayer === 'temperature') {
-     leftMap.addLayer(getLSTImage(state.fromYear, state.fromMonth), lst_vis, 'LST Before');
-     rightMap.addLayer(getLSTImage(state.toYear, state.toMonth), lst_vis, 'LST After'); }
-   else if (state.activeLayer === 'water') {
-     leftMap.addLayer(getETImage(state.fromYear, state.fromMonth), et_vis, 'Water Before');
-     rightMap.addLayer(getETImage(state.toYear, state.toMonth), et_vis, 'Water After'); }
-   else {
-     leftMap.addLayer(getS2Composite(state.fromYear, state.fromMonth), s2_vis, 'S2 Before');
-     rightMap.addLayer(getS2Composite(state.toYear, state.toMonth), s2_vis, 'S2 After'); }
+   if (isBaseline) {
+     if (state.activeLayer === 'greenspace') { _addData(leftMap, getVegDiffImage(state.fromYear, state.fromMonth), fvc_diff_vis, 'FVC Anomaly (From)'); _addData(rightMap, getVegDiffImage(state.toYear, state.toMonth), fvc_diff_vis, 'FVC Anomaly (To)'); }
+     else if (state.activeLayer === 'temperature') { _addData(leftMap, getLSTDiffImage(state.fromYear, state.fromMonth), lst_diff_vis, 'LST Anomaly (From)'); _addData(rightMap, getLSTDiffImage(state.toYear, state.toMonth), lst_diff_vis, 'LST Anomaly (To)'); }
+     else if (state.activeLayer === 'water') { _addData(leftMap, getETDiffImage(state.fromYear, state.fromMonth), et_diff_vis, 'Water Anomaly (From)'); _addData(rightMap, getETDiffImage(state.toYear, state.toMonth), et_diff_vis, 'Water Anomaly (To)'); }
+     else { _addData(leftMap, getS2Composite(state.fromYear, state.fromMonth), s2_vis, 'S2 Before'); _addData(rightMap, getS2Composite(state.toYear, state.toMonth), s2_vis, 'S2 After'); }
+   } else {
+     if (state.activeLayer === 'greenspace') { _addData(leftMap, getFVCImage(state.fromYear, state.fromMonth), fvc_vis, 'FVC Before'); _addData(rightMap, getFVCImage(state.toYear, state.toMonth), fvc_vis, 'FVC After'); }
+     else if (state.activeLayer === 'temperature') { _addData(leftMap, getLSTImage(state.fromYear, state.fromMonth), lst_vis, 'LST Before'); _addData(rightMap, getLSTImage(state.toYear, state.toMonth), lst_vis, 'LST After'); }
+     else if (state.activeLayer === 'water') { _addData(leftMap, getETImage(state.fromYear, state.fromMonth), et_vis, 'Water Before'); _addData(rightMap, getETImage(state.toYear, state.toMonth), et_vis, 'Water After'); }
+     else { _addData(leftMap, getS2Composite(state.fromYear, state.fromMonth), s2_vis, 'S2 Before'); _addData(rightMap, getS2Composite(state.toYear, state.toMonth), s2_vis, 'S2 After'); }
+   }
  } else {
-   if (containerMode !== 'single') { mapContainer.widgets().reset([leftMap]); containerMode = 'single'; }
+   if (containerMode !== 'single') {
+     var savedView = {lon: currentViewPort.lon, lat: currentViewPort.lat, zoom: currentViewPort.zoom};
+     mapContainer.widgets().reset([leftMap]);
+     containerMode = 'single';
+     if (mapInitialized) {
+       ee.Number(0).evaluate(function() {
+         leftMap.setCenter(savedView.lon, savedView.lat, savedView.zoom);
+       });
+     }
+   }
    rightDateLabel.style().set('shown', false);
+
+
    if (isSameDate && !isBaseline) {
-     if (state.activeLayer === 'greenspace') leftMap.addLayer(getFVCImage(state.fromYear, state.fromMonth), fvc_vis, 'FVC');
-     else if (state.activeLayer === 'temperature') leftMap.addLayer(getLSTImage(state.fromYear, state.fromMonth), lst_vis, 'LST');
-     else if (state.activeLayer === 'water') leftMap.addLayer(getETImage(state.fromYear, state.fromMonth), et_vis, 'Water');
-     else leftMap.addLayer(getS2Composite(state.fromYear, state.fromMonth), s2_vis, 'Satellite');
+     if (state.activeLayer === 'greenspace') _addData(leftMap, getFVCImage(state.fromYear, state.fromMonth), fvc_vis, 'FVC');
+     else if (state.activeLayer === 'temperature') _addData(leftMap, getLSTImage(state.fromYear, state.fromMonth), lst_vis, 'LST');
+     else if (state.activeLayer === 'water') _addData(leftMap, getETImage(state.fromYear, state.fromMonth), et_vis, 'Water');
+     else _addData(leftMap, getS2Composite(state.fromYear, state.fromMonth), s2_vis, 'Satellite');
    } else {
      if (state.activeLayer === 'greenspace') {
        var fvcDiff = isBaseline ? getVegDiffImage(state.toYear, state.toMonth) : getFVCImage(state.toYear, state.toMonth).subtract(getFVCImage(state.fromYear, state.fromMonth));
-       leftMap.addLayer(fvcDiff, fvc_diff_vis, 'FVC change');
+       _addData(leftMap, fvcDiff, fvc_diff_vis, 'FVC change');
      } else if (state.activeLayer === 'temperature') {
        var lstDiff = isBaseline ? getLSTDiffImage(state.toYear, state.toMonth) : getLSTImage(state.toYear, state.toMonth).subtract(getLSTImage(state.fromYear, state.fromMonth));
-       leftMap.addLayer(lstDiff, lst_diff_vis, 'LST change');
+       _addData(leftMap, lstDiff, lst_diff_vis, 'LST change');
      } else if (state.activeLayer === 'water') {
        var etDiff = isBaseline ? getETDiffImage(state.toYear, state.toMonth) : getETImage(state.toYear, state.toMonth).subtract(getETImage(state.fromYear, state.fromMonth));
-       leftMap.addLayer(etDiff, et_diff_vis, 'Water change');
-     } else { leftMap.addLayer(getS2Composite(state.toYear, state.toMonth), s2_vis, 'Current view'); }
+       _addData(leftMap, etDiff, et_diff_vis, 'Water change');
+     } else { _addData(leftMap, getS2Composite(state.toYear, state.toMonth), s2_vis, 'Current view'); }
    }
  }
-
-
- var tractStyle = tracts.style({color: COLORS.primary + '99', fillColor: '00000000', width: 0.8}); leftMap.addLayer(tractStyle, {}, 'Census tracts'); if (state.splitEnabled) rightMap.addLayer(tractStyle, {}, 'Census tracts');
- var boundaryStyle = lasvegas_boundary.style({color: COLORS.primary, fillColor: '00000000', width: 2}); leftMap.addLayer(boundaryStyle, {}, 'Study area'); if (state.splitEnabled) rightMap.addLayer(boundaryStyle, {}, 'Study area');
 
 
  state.compareTracts.forEach(function(t) { var compStyle = ee.FeatureCollection([ee.Feature(t.feature.geometry())]).style({color: t.color, fillColor: t.color + '40', width: 3}); leftMap.addLayer(compStyle, {}, 'Compare tract: ' + t.geoid); if (state.splitEnabled) rightMap.addLayer(compStyle, {}, 'Compare tract: ' + t.geoid); });
@@ -590,6 +641,7 @@ function refreshMap() {
 }
 ```
 :::
+
 
 ## Appendix
 
@@ -611,7 +663,7 @@ Across all months, the SMA model achieves a spectral RMSE of 0.011 for our refle
 
 There still remains future potential for improvement with the model. Aggregated monthly RMSEs do reveal slight seasonal changes in accuracy (with winter months achieving a lower RMSE), and visual analysis indicates that errors are higher for bright impervious materials such as the white roofs of large corporate or government buildings. 
 
-## References
+##  References
 Las Vegas Review-Journal (2026) *High court paves way for more parties to challenge ‘nonfunctional grass’ irrigation ban*. Available at: <https://www.reviewjournal.com/news/civil-courts/high-court-paves-way-for-more-parties-to-challenge-nonfunctional-grass-irrigation-ban-3790366/> (Accessed: 23 April 2026).
 
 Mejía Valencia, J.F. et al. (2023) *The effect of removal of all non-functional turf in Las Vegas: tradeoffs between water conservation, excessive heat and storminess*. Available at: <https://www.researchgate.net/publication/370171341_The_effect_of_removal_of_all_non-functional_turf_in_Las_Vegas_tradeoffs_between_water_conservation_excessive_heat_and_storminess> (Accessed: 23 April 2026).

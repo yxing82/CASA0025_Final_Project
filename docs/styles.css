@@ -95,7 +95,31 @@ h2, .h2 {
 h3, .h3 {
     font-size: 1.6rem;
     font-weight: 500;
+}
+
+body.quarto-light h3,
+body.quarto-light .h3 {
+    color: #7f865e;
+}
+
+body.quarto-dark h3,
+body.quarto-dark .h3 {
+    color: #b9c08f;
+}
+
+h4, .h4 {
+    font-size: 1.3rem;
+    font-weight: 500;
+}
+
+body.quarto-light h4,
+body.quarto-light .h4 {
     color: #989d78;
+}
+
+body.quarto-dark h4,
+body.quarto-dark .h4 {
+    color: #d1d5ad;
 }
 
 /* ---------- Links ---------- */
