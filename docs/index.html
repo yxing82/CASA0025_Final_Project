@@ -140,7 +140,7 @@ window.Quarto = {
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed fullcontent quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
+<body class="nav-fixed quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
       const mode = bsSheetEl.getAttribute("data-mode");
       const bodyEl = window.document.querySelector("body");
@@ -331,17 +331,49 @@ window.Quarto = {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content page-columns page-full column-body" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
 
 
 
 
 
+<div class="contents-dropdown">
+<button class="contents-button">
+Contents ▾
+</button>
+<div class="contents-menu">
+<ul>
+<li><a href="#project-summary">Project Summary</a></li>
+<li><a href="#problem-statement">Problem Statement</a></li>
+<li><a href="#end-user">End User</a></li>
+<li><a href="#data">Data</a></li>
+<li><a href="#methodology">Methodology</a>
+<ul>
+<li><a href="#green-space-detection">Green Space Detection</a></li>
+<li><a href="#water-consumption">Water Consumption</a></li>
+<li><a href="#seasonal-analysis">Seasonal Analysis</a></li>
+</ul></li>
+<li><a href="#interface">Interface</a></li>
+<li><a href="#the-application">The Application</a></li>
+<li><a href="#how-it-works">How it Works</a>
+<ul>
+<li><a href="#data-preparation-and-precomputation">Data Preparation and Precomputation</a></li>
+<li><a href="#interactive-visualisation-and-analysis">Interactive Visualisation and Analysis</a></li>
+</ul></li>
+<li><a href="#appendix">Appendix</a>
+<ul>
+<li><a href="#limitations">Limitations</a></li>
+<li><a href="#sma-model-coverage">SMA Model Coverage</a></li>
+</ul></li>
+<li><a href="#references">References</a></li>
+</ul>
+</div>
+</div>
 <section id="project-summary" class="level2">
 <h2 class="anchored" data-anchor-id="project-summary">Project Summary</h2>
 <p>This project develops an interactive web application to assess green space loss and related environmental impacts in the Las Vegas Valley. In the context of recent tension around regional policy to remove “nonfunctional” turf, the application visualizes local changes in green space alongside shifts in land surface temperature and water consumption. A map-based dashboard enables tract-level exploration of spatial patterns and temporal change. By linking policy implementation to measurable landscape changes, the project directly supports more informed evaluation of its impact on water conservation and environmental conditions.</p>
@@ -1026,6 +1058,54 @@ RMSE = \sqrt{\frac{1}{7}\sum_{b=1}^{7}\left(\rho_{b}-\sum_{k=1}^{5}f_{k}\cdot e_
 <p>Southern Nevada Water Authority (2000) <em>Xeriscape Conversion Study</em>. Available at: <a href="https://www.snwa.com/assets/pdf/reports-xeriscape.pdf" class="uri">https://www.snwa.com/assets/pdf/reports-xeriscape.pdf</a> (Accessed: 23 April 2026).</p>
 <p>Southern Nevada Water Authority (2026) <em>SNWA Water Resource Plan: 2026 Appendices</em>. Available at: <a href="https://www.snwa.com/assets/pdf/water-resource-plan-appendices-2026.pdf" class="uri">https://www.snwa.com/assets/pdf/water-resource-plan-appendices-2026.pdf</a> (Accessed: 23 April 2026).</p>
 <p>Wu, C. and Murray, A.T. (2003) ‘Estimating impervious surface distribution by spectral mixture analysis’, <em>Remote Sensing of Environment</em>, 84(4), pp.&nbsp;493–505. Available at: <a href="https://www.sciencedirect.com/science/article/pii/S0034425702001360" class="uri">https://www.sciencedirect.com/science/article/pii/S0034425702001360</a> (Accessed: 23 April 2026).</p>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const dropdown = document.querySelector(".contents-dropdown");
+  const button = document.querySelector(".contents-button");
+  const links = document.querySelectorAll(".contents-menu a[href^='#']");
+
+  if (!dropdown || !button) return;
+
+  button.addEventListener("click", function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+    dropdown.classList.toggle("is-open");
+  });
+
+  links.forEach(function (link) {
+    link.addEventListener("click", function (event) {
+      event.preventDefault();
+
+      const id = this.getAttribute("href").substring(1);
+      const target = document.getElementById(id);
+
+      if (target) {
+        const offset = 130;
+        const position = target.getBoundingClientRect().top + window.pageYOffset - offset;
+
+        window.scrollTo({
+          top: position,
+          behavior: "smooth"
+        });
+
+        dropdown.classList.remove("is-open");
+      }
+    });
+  });
+
+  document.addEventListener("click", function (event) {
+    if (!dropdown.contains(event.target)) {
+      dropdown.classList.remove("is-open");
+    }
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      dropdown.classList.remove("is-open");
+    }
+  });
+});
+</script>
 
 
 </section>

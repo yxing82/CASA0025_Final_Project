@@ -1,7 +1,32 @@
 ---
 title: ""
-css: styles.css
+toc: false
+page-layout: full
 ---
+
+::: {.contents-dropdown}
+<button class="contents-button">Contents ▾</button>
+
+::: {.contents-menu}
+- [Project Summary](#project-summary)
+- [Problem Statement](#problem-statement)
+- [End User](#end-user)
+- [Data](#data)
+- [Methodology](#methodology)
+  - [Green Space Detection](#green-space-detection)
+  - [Water Consumption](#water-consumption)
+  - [Seasonal Analysis](#seasonal-analysis)
+- [Interface](#interface)
+- [The Application](#the-application)
+- [How it Works](#how-it-works)
+  - [Data Preparation and Precomputation](#data-preparation-and-precomputation)
+  - [Interactive Visualisation and Analysis](#interactive-visualisation-and-analysis)
+- [Appendix](#appendix)
+  - [Limitations](#limitations)
+  - [SMA Model Coverage](#sma-model-coverage)
+- [References](#references)
+:::
+:::
 
 ## Project Summary
 
@@ -681,3 +706,54 @@ Southern Nevada Water Authority (2000) *Xeriscape Conversion Study*. Available a
 Southern Nevada Water Authority (2026) *SNWA Water Resource Plan: 2026 Appendices*. Available at: <https://www.snwa.com/assets/pdf/water-resource-plan-appendices-2026.pdf> (Accessed: 23 April 2026).
 
 Wu, C. and Murray, A.T. (2003) ‘Estimating impervious surface distribution by spectral mixture analysis’, *Remote Sensing of Environment*, 84(4), pp. 493–505. Available at: <https://www.sciencedirect.com/science/article/pii/S0034425702001360> (Accessed: 23 April 2026).
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const dropdown = document.querySelector(".contents-dropdown");
+  const button = document.querySelector(".contents-button");
+  const links = document.querySelectorAll(".contents-menu a[href^='#']");
+
+  if (!dropdown || !button) return;
+
+  button.addEventListener("click", function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+    dropdown.classList.toggle("is-open");
+  });
+
+  links.forEach(function (link) {
+    link.addEventListener("click", function (event) {
+      event.preventDefault();
+
+      const id = this.getAttribute("href").substring(1);
+      const target = document.getElementById(id);
+
+      if (target) {
+        const offset = 130;
+        const position = target.getBoundingClientRect().top + window.pageYOffset - offset;
+
+        window.scrollTo({
+          top: position,
+          behavior: "smooth"
+        });
+
+        dropdown.classList.remove("is-open");
+      }
+    });
+  });
+
+  document.addEventListener("click", function (event) {
+    if (!dropdown.contains(event.target)) {
+      dropdown.classList.remove("is-open");
+    }
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      dropdown.classList.remove("is-open");
+    }
+  });
+});
+</script>

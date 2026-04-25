@@ -4,21 +4,21 @@
     "href": "readme.html",
     "title": "Las Vegas Valley Turf Tracker",
     "section": "",
-    "text": "Use this repository to host a website for your CASA0025 final project by following these stpes:\n\nclone this repository\ninstall quarto\nedit the ‘index.qmd’ file with the contents of your project\nusing terminal, navigate to the project directory and run “quarto render”\npush the changes to your github repository\non github, navigate to Settings&gt;Pages&gt;Build and Deployment. Make sure that under “Source” it says “deploy from branch”. Under “Branch”, select “Main” in the first dropdown and “Docs” under the second drop down. Then press “Save”\n\nYour website should now be available under https://{your_username}.github.io/{your_repo_name}"
+    "text": "This is a repository for the Las Vegas Valley Turf Tracker."
   },
   {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Las Vegas Valley Turf Tracker",
     "section": "",
-    "text": "This project develops an interactive web application to assess green space loss and related environmental impacts in the Las Vegas Valley. In the context of recent tension around regional policy to remove “nonfunctional” turf, the application visualizes local changes in green space alongside shifts in land surface temperature and water consumption. A map-based dashboard enables tract-level exploration of spatial patterns and temporal change. By linking policy implementation to measurable landscape changes, the project directly supports more informed evaluation of its impact on water conservation and environmental conditions."
+    "text": "Contents ▾\n\n\n\nProject Summary\nProblem Statement\nEnd User\nData\nMethodology\n\nGreen Space Detection\nWater Consumption\nSeasonal Analysis\n\nInterface\nThe Application\nHow it Works\n\nData Preparation and Precomputation\nInteractive Visualisation and Analysis\n\nAppendix\n\nLimitations\nSMA Model Coverage\n\nReferences"
   },
   {
     "objectID": "index.html#project-summary",
     "href": "index.html#project-summary",
     "title": "Las Vegas Valley Turf Tracker",
-    "section": "",
-    "text": "This project develops an interactive web application to assess green space loss and related environmental impacts in the Las Vegas Valley. In the context of recent tension around regional policy to remove “nonfunctional” turf, the application visualizes local changes in green space alongside shifts in land surface temperature and water consumption. A map-based dashboard enables tract-level exploration of spatial patterns and temporal change. By linking policy implementation to measurable landscape changes, the project directly supports more informed evaluation of its impact on water conservation and environmental conditions."
+    "section": "Project Summary",
+    "text": "Project Summary\nThis project develops an interactive web application to assess green space loss and related environmental impacts in the Las Vegas Valley. In the context of recent tension around regional policy to remove “nonfunctional” turf, the application visualizes local changes in green space alongside shifts in land surface temperature and water consumption. A map-based dashboard enables tract-level exploration of spatial patterns and temporal change. By linking policy implementation to measurable landscape changes, the project directly supports more informed evaluation of its impact on water conservation and environmental conditions."
   },
   {
     "objectID": "index.html#problem-statement",
