@@ -475,7 +475,7 @@ This application offers an interactive interface for exploring spatial patterns,
 
 ## The Application
 
-:::{.column-page}
+:::{.column-page .app-embed-zone}
 
 <iframe src='https://project-ba3da252-127d-4b0d-bf0.projects.earthengine.app/view/turf-tracker' width='100%' height='700px'></iframe>
 
@@ -878,28 +878,27 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-links.forEach(function (link) {
-  link.addEventListener("click", function (event) {
-    event.preventDefault();
+  links.forEach(function (link) {
+    link.addEventListener("click", function (event) {
+      event.preventDefault();
 
-    const id = this.getAttribute("href").substring(1);
-    const target = document.getElementById(id);
+      const id = this.getAttribute("href").substring(1);
+      const target = document.getElementById(id);
 
-    if (target) {
-      const offset = 0; 
-      const position = target.getBoundingClientRect().top + window.scrollY - offset;
+      if (target) {
+        const offset = 140;
+        const targetTop = target.getBoundingClientRect().top + window.pageYOffset;
+        const position = Math.max(targetTop - offset, 0);
 
-      window.scrollTo({
-        top: position,
-        behavior: "smooth"
-      });
+        window.scrollTo({
+          top: position,
+          behavior: "smooth"
+        });
 
-      dropdown.classList.remove("is-open");
-    } else {
-      console.log("No element found for ID:", id); 
-    }
+        dropdown.classList.remove("is-open");
+      }
+    });
   });
-});
 
   document.addEventListener("click", function (event) {
     if (!dropdown.contains(event.target)) {
@@ -914,4 +913,3 @@ links.forEach(function (link) {
   });
 });
 </script>
-
