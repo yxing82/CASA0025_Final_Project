@@ -347,10 +347,11 @@ window.Quarto = {
 <style>
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 80px;
+  scroll-padding-top: 90px;
 }
-h1, h2, h3, h4 {
-  scroll-margin-top: 80px;
+h1, h2, h3, h4,
+section, .level1, .level2, .level3, .level4 {
+  scroll-margin-top: 90px;
 }
 </style>
 <div class="contents-dropdown">
@@ -1212,7 +1213,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const appZone = document.querySelector(".app-embed-zone");
   if (!dropdown || !button) return;
 
-  // ── TOC visibility over app ──
   function updateContentsVisibility() {
     if (!appZone) return;
     const dropdownRect = dropdown.getBoundingClientRect();
@@ -1232,7 +1232,6 @@ document.addEventListener("DOMContentLoaded", function () {
   window.addEventListener("scroll", updateContentsVisibility);
   window.addEventListener("resize", updateContentsVisibility);
 
-  // ── TOC toggle ──
   button.addEventListener("click", function (e) {
     e.preventDefault();
     e.stopPropagation();
@@ -1241,28 +1240,22 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // ── FIXED scroll navigation ──
   links.forEach(function (link) {
     link.addEventListener("click", function (e) {
       e.preventDefault();
+      e.stopPropagation();
       const id = this.getAttribute("href").substring(1);
       const target = document.getElementById(id);
       if (target) {
-        const navBar = document.querySelector(".navbar");
-        const navHeight = 68;
-        const gap = 12;
-        const targetTop = target.getBoundingClientRect().top + window.pageYOffset;
-        window.scrollTo({
-          top: targetTop - navHeight - gap,
-          behavior: "smooth"
-        });
+        const OFFSET = 90;
+        const pos = target.getBoundingClientRect().top + window.pageYOffset - OFFSET;
+        window.scrollTo({ top: pos, behavior: "smooth" });
         dropdown.classList.remove("is-open");
         history.pushState(null, "", "#" + id);
       }
     });
   });
 
-  // ── Close on outside click / Escape ──
   document.addEventListener("click", function (e) {
     if (!dropdown.contains(e.target)) {
       dropdown.classList.remove("is-open");
@@ -1271,20 +1264,6 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") dropdown.classList.remove("is-open");
   });
-
-  // ── Handle initial URL hash ──
-  if (window.location.hash) {
-    const hashTarget = document.getElementById(window.location.hash.substring(1));
-    if (hashTarget) {
-      setTimeout(function () {
-        const navBar = document.querySelector(".navbar");
-        const navHeight = 68;
-        const gap = 12;
-        const targetTop = hashTarget.getBoundingClientRect().top + window.pageYOffset;
-        window.scrollTo({ top: targetTop - navHeight - gap, behavior: "smooth" });
-      }, 150);
-    }
-  }
 });
 </script>
 
