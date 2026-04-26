@@ -138,6 +138,7 @@ window.Quarto = {
 </script>
 
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles-test.css">
 </head>
 
 <body class="nav-fixed quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
@@ -1205,19 +1206,100 @@ RMSE_{global} = \sqrt{\frac{1}{N}\sum_{i=1}^{N}\frac{1}{7}\sum_{b=1}^{7}\left(\r
 <p>Southern Nevada Water Authority (2000) <em>Xeriscape Conversion Study</em>. Available at: <a href="https://www.snwa.com/assets/pdf/reports-xeriscape.pdf" class="uri">https://www.snwa.com/assets/pdf/reports-xeriscape.pdf</a> (Accessed: 23 April 2026).</p>
 <p>Southern Nevada Water Authority (2026) <em>SNWA Water Resource Plan: 2026 Appendices</em>. Available at: <a href="https://www.snwa.com/assets/pdf/water-resource-plan-appendices-2026.pdf" class="uri">https://www.snwa.com/assets/pdf/water-resource-plan-appendices-2026.pdf</a> (Accessed: 23 April 2026).</p>
 <p>Wu, C. and Murray, A.T. (2003) ‘Estimating impervious surface distribution by spectral mixture analysis’, <em>Remote Sensing of Environment</em>, 84(4), pp.&nbsp;493–505. Available at: <a href="https://www.sciencedirect.com/science/article/pii/S0034425702001360" class="uri">https://www.sciencedirect.com/science/article/pii/S0034425702001360</a> (Accessed: 23 April 2026).</p>
+<style>
+/* ── Scroll offset ──────────────────────────────────────────────── */
+/* The navbar/banner is position:relative and scrolls away, so we
+   only need a tiny breathing gap, NOT a big fixed-header offset.
+   The real scroll-margin-top rules are in styles.css — this is
+   just a safety duplicate in case styles.css loads late.          */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 1rem;
+}
+h1, h2, h3, h4, section[id] {
+  scroll-margin-top: 1rem;
+}
+</style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const dropdown = document.querySelector(".contents-dropdown");
-  const button = document.querySelector(".contents-button");
-  const links = document.querySelectorAll(".contents-menu a[href^='#']");
-  const appZone = document.querySelector(".app-embed-zone");
+
+  // ── STEP 1: FIX QUARTO'S ID PLACEMENT ───────────────────────────
+  // Quarto puts id on <section>, not on <h2>.
+  // We move each section's id onto its first child heading,
+  // so anchor scrolling targets the heading directly.
+  document.querySelectorAll("section[id]").forEach(function (sec) {
+    var heading = sec.querySelector("h1, h2, h3, h4");
+    if (heading && !heading.id) {
+      heading.id = sec.id;
+      sec.removeAttribute("id");
+    }
+  });
+
+  // ── STEP 2: GRAB REFERENCES ─────────────────────────────────────
+  var dropdown = document.querySelector(".contents-dropdown");
+  var button   = document.querySelector(".contents-button");
+  var links    = document.querySelectorAll(".contents-menu a[href^='#']");
+  var appZone  = document.querySelector(".app-embed-zone") ||
+                 document.querySelector(".column-page");
   if (!dropdown || !button) return;
 
+  // ── STEP 3: CALCULATE OFFSET ────────────────────────────────────
+  // Navbar is position:relative (scrolls away), so we just need
+  // a small breathing gap at the top of the viewport.
+  var OFFSET = 16; // px — just a small gap
+
+  // ── STEP 4: CLICK HANDLER — scroll heading to top ───────────────
+  links.forEach(function (link) {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      var id = this.getAttribute("href").substring(1);
+      var target = document.getElementById(id);
+      if (!target) return;
+
+      // Safety: if the id is still on a <section>, find heading inside
+      var scrollTarget = target;
+      if (target.tagName === "SECTION" || target.tagName === "DIV") {
+        scrollTarget = target.querySelector("h1, h2, h3, h4") || target;
+      }
+
+      var targetTop = scrollTarget.getBoundingClientRect().top + window.pageYOffset;
+      window.scrollTo({
+        top: targetTop - OFFSET,
+        behavior: "smooth"
+      });
+
+      dropdown.classList.remove("is-open");
+      history.pushState(null, "", "#" + id);
+    });
+  });
+
+  // ── STEP 5: TOGGLE DROPDOWN ─────────────────────────────────────
+  button.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!dropdown.classList.contains("hide-over-app")) {
+      dropdown.classList.toggle("is-open");
+    }
+  });
+
+  document.addEventListener("click", function (e) {
+    if (!dropdown.contains(e.target)) {
+      dropdown.classList.remove("is-open");
+    }
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") dropdown.classList.remove("is-open");
+  });
+
+  // ── STEP 6: HIDE DROPDOWN OVER APP EMBED ────────────────────────
   function updateContentsVisibility() {
     if (!appZone) return;
-    const dropdownRect = dropdown.getBoundingClientRect();
-    const appRect = appZone.getBoundingClientRect();
-    const overlaps =
+    var dropdownRect = dropdown.getBoundingClientRect();
+    var appRect = appZone.getBoundingClientRect();
+    var overlaps =
       dropdownRect.bottom > appRect.top &&
       dropdownRect.top < appRect.bottom;
     if (overlaps) {
@@ -1232,41 +1314,22 @@ document.addEventListener("DOMContentLoaded", function () {
   window.addEventListener("scroll", updateContentsVisibility);
   window.addEventListener("resize", updateContentsVisibility);
 
-  button.addEventListener("click", function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!dropdown.classList.contains("hide-over-app")) {
-      dropdown.classList.toggle("is-open");
-    }
-  });
+  // ── STEP 7: HANDLE DIRECT URL HASH ON PAGE LOAD ─────────────────
+  if (window.location.hash) {
+    setTimeout(function () {
+      var hashId = window.location.hash.substring(1);
+      var hashTarget = document.getElementById(hashId);
+      if (!hashTarget) return;
 
-  links.forEach(function (link) {
-    link.addEventListener("click", function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      const id = this.getAttribute("href").substring(1);
-      const target = document.getElementById(id);
-      if (target) {
-        // THIS IS THE KEY FIX:
-        // Quarto puts id on <section>, not <h2>. Find the actual heading inside.
-        const heading = target.querySelector("h1, h2, h3, h4") || target;
-        const OFFSET = 90;
-        const pos = heading.getBoundingClientRect().top + window.pageYOffset - OFFSET;
-        window.scrollTo({ top: pos, behavior: "smooth" });
-        dropdown.classList.remove("is-open");
-        history.pushState(null, "", "#" + id);
+      var scrollTarget = hashTarget;
+      if (hashTarget.tagName === "SECTION" || hashTarget.tagName === "DIV") {
+        scrollTarget = hashTarget.querySelector("h1, h2, h3, h4") || hashTarget;
       }
-    });
-  });
 
-  document.addEventListener("click", function (e) {
-    if (!dropdown.contains(e.target)) {
-      dropdown.classList.remove("is-open");
-    }
-  });
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") dropdown.classList.remove("is-open");
-  });
+      var targetTop = scrollTarget.getBoundingClientRect().top + window.pageYOffset;
+      window.scrollTo({ top: targetTop - OFFSET, behavior: "smooth" });
+    }, 300);
+  }
 });
 </script>
 
