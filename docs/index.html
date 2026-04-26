@@ -1202,6 +1202,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (!dropdown || !button) return;
 
+  function scrollToSection(id) {
+    const target = document.getElementById(id);
+
+    if (!target) {
+      console.log("No element found for ID:", id);
+      return;
+    }
+
+    /*
+      This controls where the heading appears.
+      0.22 means the heading lands about 22% down from the top of the screen.
+      This shows the heading clearly and leaves the majority of the section visible.
+    */
+    const offset = Math.round(window.innerHeight * 0.22);
+    const targetTop = target.getBoundingClientRect().top + window.pageYOffset;
+    const position = Math.max(targetTop - offset, 0);
+
+    window.scrollTo({
+      top: position,
+      behavior: "smooth"
+    });
+  }
+
   function updateContentsVisibility() {
     if (!appZone) return;
 
@@ -1236,22 +1259,21 @@ document.addEventListener("DOMContentLoaded", function () {
   links.forEach(function (link) {
     link.addEventListener("click", function (event) {
       event.preventDefault();
+      event.stopPropagation();
 
-      const id = this.getAttribute("href").substring(1);
-      const target = document.getElementById(id);
+      const id = this.getAttribute("href").replace("#", "");
 
-      if (target) {
-        const offset = 140;
-        const targetTop = target.getBoundingClientRect().top + window.pageYOffset;
-        const position = Math.max(targetTop - offset, 0);
+      dropdown.classList.remove("is-open");
 
-        window.scrollTo({
-          top: position,
-          behavior: "smooth"
-        });
+      /*
+        Remove the hash so the browser/Quarto does NOT do its own jump.
+        Then we control the scroll position ourselves.
+      */
+      history.pushState(null, "", window.location.pathname + window.location.search);
 
-        dropdown.classList.remove("is-open");
-      }
+      setTimeout(function () {
+        scrollToSection(id);
+      }, 50);
     });
   });
 
