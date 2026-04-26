@@ -1210,13 +1210,14 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    /*
-      This controls where the heading appears.
-      0.22 means the heading lands about 22% down from the top of the screen.
-      This shows the heading clearly and leaves the majority of the section visible.
-    */
-    const offset = Math.round(window.innerHeight * 0.22);
     const targetTop = target.getBoundingClientRect().top + window.pageYOffset;
+
+    /*
+      Bigger offset = heading appears lower on the screen.
+      0.45 means heading lands around upper-middle of page.
+    */
+    const offset = Math.round(window.innerHeight * 0.45);
+
     const position = Math.max(targetTop - offset, 0);
 
     window.scrollTo({
@@ -1264,11 +1265,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const id = this.getAttribute("href").replace("#", "");
 
       dropdown.classList.remove("is-open");
-
-      /*
-        Remove the hash so the browser/Quarto does NOT do its own jump.
-        Then we control the scroll position ourselves.
-      */
       history.pushState(null, "", window.location.pathname + window.location.search);
 
       setTimeout(function () {
