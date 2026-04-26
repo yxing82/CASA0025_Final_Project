@@ -886,7 +886,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const target = document.getElementById(id);
 
       if (target) {
-        const offset = 120;
+        const offset = 0;
         const position = target.getBoundingClientRect().top + window.pageYOffset - offset;
 
         window.scrollTo({
