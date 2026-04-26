@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Las Vegas Valley Turf Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600;700&family=Source+Serif+4:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<style>
+/* ── Reset & Base ────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --color-primary: #1B5E8A;
+  --color-primary-dark: #124261;
+  --color-primary-light: #E8F0F7;
+  --color-text: #2c2c2c;
+  --color-text-muted: #5a6570;
+  --color-bg: #ffffff;
+  --color-bg-alt: #f8f9fa;
+  --color-border: #dee2e6;
+  --color-green: #3B6D11;
+  --color-orange: #D85A30;
+  --font-body: 'Source Sans 3', sans-serif;
+  --font-heading: 'Source Serif 4', serif;
+  --font-code: 'Fira Code', monospace;
+  --nav-height: 56px;
+  --content-max: 860px;
+  --scroll-offset: calc(var(--nav-height) + 12px);
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--scroll-offset);
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.72;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Quarto-style top navbar ─────────────────────────── */
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--nav-height);
+  background: var(--color-primary-dark);
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  z-index: 1000;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+.navbar-brand {
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+}
+.navbar .test-badge {
+  margin-left: 14px;
+  background: var(--color-orange);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── Main content container ──────────────────────────── */
+.page-body {
+  margin-top: var(--nav-height);
+  padding: 48px 24px 80px;
+}
+.page-content {
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+
+/* ── Section headings ────────────────────────────────── */
+h2 {
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  margin: 56px 0 18px;
+  padding-top: 8px;
+  border-bottom: 2px solid var(--color-primary-light);
+  padding-bottom: 8px;
+  /* This is the KEY fix: scroll-margin accounts for navbar + breathing room */
+  scroll-margin-top: var(--scroll-offset);
+}
+h3 {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 36px 0 12px;
+  scroll-margin-top: var(--scroll-offset);
+}
+h4 {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin: 28px 0 10px;
+  scroll-margin-top: var(--scroll-offset);
+}
+
+/* First h2 needs less top margin */
+.page-content > h2:first-of-type {
+  margin-top: 12px;
+}
+
+p { margin: 0 0 16px; }
+a { color: var(--color-primary); text-decoration: underline; text-underline-offset: 2px; }
+a:hover { color: var(--color-primary-dark); }
+
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 16px 0;
+  border: 1px solid var(--color-border);
+}
+
+/* ── Data table ──────────────────────────────────────── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 0.9rem;
+}
+th {
+  background: var(--color-primary-dark);
+  color: #fff;
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+}
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+}
+td.description { font-size: 0.85rem; color: var(--color-text-muted); }
+tr:hover td { background: var(--color-bg-alt); }
+
+/* ── Code scroll container ───────────────────────────── */
+.scroll-container {
+  overflow-y: auto;
+  max-height: 400px;
+  padding: 20px;
+  background: #1e1e2e;
+  border-radius: 8px;
+  margin: 16px 0;
+  border: 1px solid #313244;
+}
+.scroll-container pre {
+  margin: 0;
+  white-space: pre;
+  overflow-x: auto;
+}
+.scroll-container code {
+  font-family: var(--font-code);
+  font-size: 0.82rem;
+  color: #cdd6f4;
+  line-height: 1.6;
+}
+
+/* ── MathJax / KaTeX formula ─────────────────────────── */
+.formula-block {
+  overflow-x: auto;
+  padding: 16px 0;
+  text-align: center;
+  font-size: 1.05rem;
+}
+
+/* ── Floating TOC dropdown ───────────────────────────── */
+.contents-dropdown {
+  position: fixed;
+  top: calc(var(--nav-height) + 14px);
+  right: 24px;
+  z-index: 999;
+  transition: opacity 0.25s, transform 0.25s;
+}
+.contents-dropdown.hide-over-app {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+}
+.contents-button {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.contents-button:hover {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+}
+.contents-button .chevron {
+  display: inline-block;
+  transition: transform 0.2s;
+  font-size: 0.7rem;
+}
+.contents-dropdown.is-open .chevron {
+  transform: rotate(180deg);
+}
+.contents-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+  min-width: 280px;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+.contents-dropdown.is-open .contents-menu { display: block; }
+
+.contents-menu a {
+  display: block;
+  padding: 7px 20px;
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+}
+.contents-menu a:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  border-left-color: var(--color-primary);
+}
+.contents-menu a.active {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  border-left-color: var(--color-primary);
+}
+.contents-menu a.sub { padding-left: 36px; font-size: 0.82rem; color: var(--color-text-muted); }
+.contents-menu a.sub:hover { color: var(--color-primary-dark); }
+.contents-menu a.sub.active { color: var(--color-primary-dark); font-weight: 600; }
+
+/* ── Collapsible sections ────────────────────────────── */
+.section-collapsible {
+  overflow: hidden;
+  transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), 
+              opacity 0.35s ease;
+  max-height: 5000px; /* large enough to fit content */
+  opacity: 1;
+}
+.section-collapsible.collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  gap: 10px;
+}
+.section-header .fold-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  transition: all 0.25s;
+}
+.section-header:hover .fold-icon {
+  background: var(--color-primary);
+  color: #fff;
+}
+.section-header .fold-icon.rotated {
+  transform: rotate(-90deg);
+}
+
+/* ── App embed zone ──────────────────────────────────── */
+.app-embed-zone {
+  margin: 32px 0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border: 1px solid var(--color-border);
+}
+.app-embed-zone iframe {
+  width: 100%;
+  height: 700px;
+  border: none;
+  display: block;
+}
+.app-embed-placeholder {
+  height: 700px;
+  background: linear-gradient(145deg, #e8f0f7 0%, #d4e4f2 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  gap: 12px;
+}
+.app-embed-placeholder .icon { font-size: 2.5rem; opacity: 0.5; }
+.app-embed-placeholder p { font-size: 0.9rem; color: var(--color-text-muted); }
+
+/* ── References ──────────────────────────────────────── */
+.ref-entry {
+  margin-bottom: 12px;
+  padding-left: 2em;
+  text-indent: -2em;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+/* ── Scroll progress bar ─────────────────────────────── */
+.scroll-progress {
+  position: fixed;
+  top: var(--nav-height);
+  left: 0;
+  height: 3px;
+  background: var(--color-primary);
+  z-index: 999;
+  transition: width 0.1s linear;
+  width: 0%;
+}
+
+/* ── Back to top ─────────────────────────────────────── */
+.back-to-top {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: all 0.25s;
+  z-index: 998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-to-top.visible { opacity: 1; transform: translateY(0); }
+.back-to-top:hover { background: var(--color-primary-dark); }
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 700px) {
+  .page-body { padding: 32px 16px 60px; }
+  h2 { font-size: 1.45rem; }
+  .contents-dropdown { right: 12px; }
+  .contents-menu { min-width: 240px; }
+  .app-embed-placeholder, .app-embed-zone iframe { height: 500px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Navbar ──────────────────────────────────────── -->
+<nav class="navbar">
+  <a class="navbar-brand" href="#">Las Vegas Valley Turf Tracker</a>
+  <span class="test-badge">Test File</span>
+</nav>
+
+<!-- ── Scroll progress ────────────────────────────── -->
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- ── Floating TOC dropdown ──────────────────────── -->
+<div class="contents-dropdown" id="contentsDropdown">
+  <button class="contents-button" id="contentsBtn">
+    Contents <span class="chevron">&#9660;</span>
+  </button>
+  <nav class="contents-menu" id="contentsMenu">
+    <a href="#project-summary">Project Summary</a>
+    <a href="#problem-statement">Problem Statement</a>
+    <a href="#end-user">End User</a>
+    <a href="#data">Data</a>
+    <a href="#methodology">Methodology</a>
+    <a href="#green-space-detection" class="sub">Green Space Detection</a>
+    <a href="#water-consumption" class="sub">Water Consumption</a>
+    <a href="#seasonal-analysis" class="sub">Seasonal Analysis</a>
+    <a href="#interface">Interface</a>
+    <a href="#the-application">The Application</a>
+    <a href="#how-it-works">How it Works</a>
+    <a href="#data-preparation-and-precomputation" class="sub">Data Preparation</a>
+    <a href="#interactive-visualisation-and-analysis" class="sub">Interactive Visualisation</a>
+    <a href="#appendix">Appendix</a>
+    <a href="#limitations" class="sub">Limitations</a>
+    <a href="#sma-model-coverage" class="sub">SMA Model Coverage</a>
+    <a href="#references">References</a>
+  </nav>
+</div>
+
+<!-- ── Page body ──────────────────────────────────── -->
+<div class="page-body">
+<div class="page-content">
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- PROJECT SUMMARY                                                 -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<h2 id="project-summary">Project Summary</h2>
+<p>This project develops an interactive web application to assess green space loss and related environmental impacts in the Las Vegas Valley. In the context of recent tension around regional policy to remove "nonfunctional" turf, the application visualizes local changes in green space alongside shifts in land surface temperature and water consumption. A map-based dashboard enables tract-level exploration of spatial patterns and temporal change. By linking policy implementation to measurable landscape changes, the project directly supports more informed evaluation of its impact on water conservation and environmental conditions.</p>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- PROBLEM STATEMENT                                               -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<h2 id="problem-statement">Problem Statement</h2>
+<p>The Colorado River Basin, a system providing water to millions across the southwestern US, is <a href="https://wires.onlinelibrary.wiley.com/doi/10.1002/wat2.1672">in crisis</a>: runoff into the basin continues to decline while consumption levels remain constant. To reduce water consumption across the Las Vegas Valley, <a href="https://legiscan.com/NV/bill/AB356/2021">Assembly Bill 356</a> was passed in 2021, prohibiting the use of water from the basin to irrigate "<a href="https://www.snwa.com/assets/pdf/water-resource-plan-appendices-2026.pdf">nonfunctional" turf</a> (green space with no clear purpose) by the start of 2027. In January 2026, a group of residents <a href="https://news3lv.com/resources/pdf/ea5538b8-1ef6-4872-8e0d-fc450e051355-A26937025CComplaintCOMPCIV.pdf">sued</a> the Southern Nevada Water Authority (SNWA), claiming that the removal of these green spaces have led to negative downstream environmental effects. The consequences of the policy remain poorly documented, creating a gap between regulatory action and observable evidence.</p>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- END USER                                                        -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<h2 id="end-user">End User</h2>
+<p>This dashboard is designed for Las Vegas Valley policymakers and residents, including those involved in <a href="https://www.reviewjournal.com/news/civil-courts/high-court-paves-way-for-more-parties-to-challenge-nonfunctional-grass-irrigation-ban-3790366/">ongoing</a> litigation. Analysis has shown that turf irrigation in the region requires <a href="https://www.snwa.com/assets/pdf/reports-xeriscape.pdf">substantial</a> amounts of water, especially when compared to more sustainable landscaping alternatives. But getting rid of the turf to reduce water consumption has considerable tradeoffs: academic research has <a href="https://www.researchgate.net/publication/370171341_The_effect_of_removal_of_all_non-functional_turf_in_Las_Vegas_tradeoffs_between_water_conservation_excessive_heat_and_storminess">demonstrated</a> that removing nonfunctional turf leads to net local warming. Compiling turf loss with surface temperature and water consumption estimates allows residents and policymakers to view changes and patterns over time at a local level. The dashboard, thus, becomes a tool in which legal arguments can be grounded in measurable environmental evidence.</p>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- DATA                                                            -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<h2 id="data">Data</h2>
+<table>
+  <tr>
+    <th>Category</th>
+    <th>Dataset</th>
+    <th>Description</th>
+    <th>Source</th>
+  </tr>
+  <tr>
+    <td rowspan="4">GEE</td>
+    <td>Sentinel-2</td>
+    <td class="description">Monthly median spectral band values from Copernicus Sentinel-2 MSI surface reflectance at 10m resolution, cloud-masked with gap-filling from prior months.</td>
+    <td><a href="https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S2_SR_HARMONIZED">Link</a></td>
+  </tr>
+  <tr>
+    <td>Land Surface Temperature</td>
+    <td class="description">Monthly median land surface temperature from Landsat 8 thermal infrared (Band 10) at 30m resolution, cloud-masked and converted to Celsius with gap-filling from prior months.</td>
+    <td><a href="https://developers.google.com/earth-engine/datasets/catalog/LANDSAT_LC08_C02_T1_L2">Link</a></td>
+  </tr>
+  <tr>
+    <td>Evapotranspiration</td>
+    <td class="description">Monthly actual evapotranspiration at 30m resolution from OpenET, combining six satellite-based models (DisALEXI, eeMETRIC, geeSEBAL, PT-JPL, SIMS, SSEBop) into a single ensemble estimate.</td>
+    <td><a href="https://openetdata.org/">Link</a></td>
+  </tr>
+  <tr>
+    <td>Census Tract Boundaries</td>
+    <td class="description">Census tract boundaries for tracts within the Las Vegas Valley.</td>
+    <td><a href="https://developers.google.com/earth-engine/datasets/catalog/TIGER_2020_TRACT">Link</a></td>
+  </tr>
+  <tr>
+    <td>Other</td>
+    <td>Metro Area Boundary</td>
+    <td class="description">Las Vegas Valley boundary compiled using Las Vegas – Henderson and Boulder City.</td>
+    <td><a href="https://catalog.data.gov/dataset/tiger-line-shapefile-2020-nation-u-s-2020-census-urban-area">Link</a></td>
+  </tr>
+</table>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- METHODOLOGY                                                     -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<h2 id="methodology">Methodology</h2>
+
+<!-- Green Space Detection (collapsible) -->
+<div class="section-wrapper" data-foldable>
+  <h3 id="green-space-detection" class="section-header" data-toggle="fold-greenspace">
+    <span class="fold-icon" id="icon-greenspace">&#9660;</span>
+    Green Space Detection
+  </h3>
+  <div class="section-collapsible" id="fold-greenspace">
+    <p>An office park may cover a cluster of several Sentinel-2 pixels, a median strip may run a narrow trail through a few pixels, and a roundabout may cover just a small fraction of one pixel. To identify changes to turf of varying sizes, we estimate fractional vegetation cover (FVC) using a 5-endmember linear spectral mixture analysis (SMA) model. This model approximates the fractional coverage of each endmember within a pixel, and we then isolate the calculated vegetation percentages to arrive at our pixel-level FVC estimates.</p>
+    <p><em>SMA model overview. The composition of each pixel is estimated using 5 endmembers: 1) green vegetation, 2) soil, 3) dark impervious materials (e.g. asphalt), 4) bright impervious materials (e.g. concrete), and 5) regional impervious materials (e.g. terra cotta roofing).</em></p>
+
+    <h4 id="fvc-estimation-code">FVC Estimation Code</h4>
+    <div class="scroll-container">
+<pre><code>// CONFIGURATION
+var startYear = 2019;
+var startMonth = 1;
+var endYear = 2026;
+var endMonth = 3;
+var baselineYear = 2019;
+var bands = ['B2', 'B3', 'B4', 'B8', 'B8A', 'B11', 'B12'];
+
+// Reference image date range (for endmember extraction)
+var refStartDate = ee.Date.fromYMD(2022, 6, 1);
+var refEndDate = ee.Date.fromYMD(2022, 7, 1);
+
+// LOAD BOUNDARY
+var lv_metro_boundary = ee.FeatureCollection(
+  'projects/lv-turf-removal/assets/lv_metro_boundary'
+);
+
+// HELPER FUNCTIONS
+function maskS2clouds(image) {
+  var qa = image.select('QA60');
+  var cloudBitMask = 1 &lt;&lt; 10;
+  var cirrusBitMask = 1 &lt;&lt; 11;
+  var qaMask = qa.bitwiseAnd(cloudBitMask).eq(0)
+      .and(qa.bitwiseAnd(cirrusBitMask).eq(0));
+  var scl = image.select('SCL');
+  var sclMask = scl.neq(3).and(scl.neq(8))
+      .and(scl.neq(9)).and(scl.neq(10));
+  var combinedMask = qaMask.and(sclMask);
+  return image.updateMask(combinedMask).divide(10000);
+}
+
+var getProfile = function(geometry, refImg) {
+  var dict = refImg.reduceRegion({
+    reducer: ee.Reducer.median(),
+    geometry: geometry,
+    scale: 10,
+    maxPixels: 1e9
+  });
+  return bands.map(function(b) { return dict.get(b); });
+};
+
+// ... (additional GEE processing code)
+</code></pre>
+    </div>
+  </div>
+</div>
+
+<!-- Water Consumption (collapsible) -->
+<div class="section-wrapper" data-foldable>
+  <h3 id="water-consumption" class="section-header" data-toggle="fold-water">
+    <span class="fold-icon" id="icon-water">&#9660;</span>
+    Water Consumption
+  </h3>
+  <div class="section-collapsible" id="fold-water">
+    <p>Water consumption is estimated using actual evapotranspiration (ET) data from OpenET at 30m resolution. The ET ensemble combines six satellite-based models — DisALEXI, eeMETRIC, geeSEBAL, PT-JPL, SIMS, and SSEBop — to produce a single monthly estimate of water leaving the land surface. This physically grounded measure serves as a proxy for irrigation intensity, making it possible to track how turf removal affects local outdoor water use over time.</p>
+    <div class="scroll-container" style="max-height: 300px;">
+<pre><code>// OpenET data retrieval
+function getETImage(year, month) {
+  var startDate = ee.Date.fromYMD(year, month, 1);
+  var endDate = startDate.advance(1, 'month');
+  var et = ee.ImageCollection('OpenET/ENSEMBLE/CONUS/GRIDMET/MONTHLY/v2_0')
+    .filterDate(startDate, endDate)
+    .select('et_ensemble_mad')
+    .first();
+  return ee.Image(ee.Algorithms.If(et, et, getETImage(
+    month === 1 ? year - 1 : year,
+    month === 1 ? 12 : month - 1
+  )));
+}
+
+function getETDiffImage(year, month) {
+  return getETImage(year, month)
+    .subtract(getETImage(baselineYear, month));
+}
+</code></pre>
+    </div>
+  </div>
+</div>
+
+<!-- Seasonal Analysis (collapsible) -->
+<div class="section-wrapper" data-foldable>
+  <h3 id="seasonal-analysis" class="section-header" data-toggle="fold-seasonal">
+    <span class="fold-icon" id="icon-seasonal">&#9660;</span>
+    Seasonal Analysis
+  </h3>
+  <div class="section-collapsible" id="fold-seasonal">
+    <p>To account for natural seasonal variation in vegetation and temperature, the application offers a "seasonally adjusted" data mode. This computes the difference between a selected month and the same calendar month in the 2019 baseline year. By comparing like-for-like months, the analysis controls for cyclical effects — such as summer heat or winter dormancy — isolating changes more likely attributable to policy-driven turf removal rather than natural phenology.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- INTERFACE                                                       -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<h2 id="interface">Interface</h2>
+<p>The application uses a sidebar-and-map layout familiar to GIS dashboard users. A fixed-width left sidebar (400px) houses all controls — tab navigation, layer selection, time settings, and analysis results — while a dual-map split panel fills the remaining viewport. The two maps are synchronised via a Map Linker so that panning or zooming one automatically updates the other, enabling before/after comparison with a swipe divider.</p>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- THE APPLICATION                                                 -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<h2 id="the-application">The Application</h2>
+<div class="app-embed-zone" id="appEmbedZone">
+  <div class="app-embed-placeholder">
+    <div class="icon">&#127758;</div>
+    <p><strong>GEE Application Embed</strong></p>
+    <p>The live Earth Engine application would be embedded here via iframe.</p>
+    <p style="font-size: 0.8rem; opacity: 0.6;">Replace this placeholder with your actual GEE app URL</p>
+  </div>
+  <!-- 
+    Uncomment and replace URL for actual embed:
+    <iframe src="https://your-gee-app-url.earthengine.app" 
+            title="Las Vegas Turf Tracker App"
+            loading="lazy"></iframe>
+  -->
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- HOW IT WORKS                                                    -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<h2 id="how-it-works">How it Works</h2>
+
+<div class="section-wrapper" data-foldable>
+  <h3 id="data-preparation-and-precomputation" class="section-header" data-toggle="fold-dataprep">
+    <span class="fold-icon" id="icon-dataprep">&#9660;</span>
+    Data Preparation and Precomputation
+  </h3>
+  <div class="section-collapsible" id="fold-dataprep">
+    <p>On initial load, the application preprocesses satellite imagery into monthly composites. For each month in the analysis period (January 2019 – March 2026), Sentinel-2 surface reflectance scenes are cloud-masked and composited into a median image. Landsat 8 thermal data and OpenET evapotranspiration grids undergo equivalent monthly aggregation. All rasters are clipped to the Las Vegas Valley metro boundary and resampled to a common grid. Census tract boundaries serve as the spatial aggregation unit for summary statistics. This precomputation step ensures that subsequent user interactions — layer switching, date changes, tract selection — trigger only lightweight map renders rather than full reprocessing.</p>
+  </div>
+</div>
+
+<div class="section-wrapper" data-foldable>
+  <h3 id="interactive-visualisation-and-analysis" class="section-header" data-toggle="fold-interactive">
+    <span class="fold-icon" id="icon-interactive">&#9660;</span>
+    Interactive Visualisation and Analysis
+  </h3>
+  <div class="section-collapsible" id="fold-interactive">
+    <h4>Quick Navigation</h4>
+    <p>At startup, the map displays the Las Vegas study area divided by census tracts. To streamline exploration across the area, the application provides a "Quick Navigation" dropdown, which allows users to jump to specific incorporated cities (like Henderson) or unincorporated Census-Designated Places (CDPs) or instantly reset the view to the full study area. Selecting a location automatically pans and scales the synchronized maps to the optimal zoom level.</p>
+    <div class="scroll-container" style="max-height: 300px;">
+<pre><code>var LV_PLACES = [
+  // ── Full Study Area ──
+  {name: 'Las Vegas Valley (Full Extent)',
+   lon: -115.1398, lat: 36.1699, zoom: 11},
+  // ── Incorporated cities ──
+  {name: 'Las Vegas',       lon: -115.1398, lat: 36.1699, zoom: 12},
+  {name: 'Henderson',       lon: -115.0361, lat: 36.0292, zoom: 12},
+  {name: 'North Las Vegas', lon: -115.1175, lat: 36.2288, zoom: 12},
+  // ── Unincorporated CDPs ──
+  {name: 'Paradise',        lon: -115.1469, lat: 36.0970, zoom: 13},
+  {name: 'Enterprise',      lon: -115.2200, lat: 36.0265, zoom: 13},
+  {name: 'Spring Valley',   lon: -115.2450, lat: 36.1070, zoom: 13},
+  {name: 'Sunrise Manor',   lon: -115.0730, lat: 36.1710, zoom: 13},
+  {name: 'Summerlin South', lon: -115.3300, lat: 36.1300, zoom: 13},
+  {name: 'Whitney',         lon: -115.0690, lat: 36.1000, zoom: 14},
+  {name: 'Winchester',      lon: -115.1180, lat: 36.1290, zoom: 14},
+  {name: 'Lone Mountain',   lon: -115.2800, lat: 36.2650, zoom: 14},
+  {name: 'Nellis AFB',      lon: -115.0480, lat: 36.2360, zoom: 14}
+];
+</code></pre>
+    </div>
+
+    <h4>Tract Selection &amp; Statistics</h4>
+    <p>When a tract is selected, the app calculates summary statistics for the chosen place and time period. These outputs are then used to generate key metrics, histograms, and monthly trend charts, supporting both single-tract analysis and two-tract comparison.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- APPENDIX                                                        -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<h2 id="appendix">Appendix</h2>
+
+<div class="section-wrapper" data-foldable>
+  <h3 id="limitations" class="section-header" data-toggle="fold-limitations">
+    <span class="fold-icon" id="icon-limitations">&#9660;</span>
+    Limitations
+  </h3>
+  <div class="section-collapsible" id="fold-limitations">
+    <p>Against this background, the present project seeks to identify where non-functional turf appears to have been removed across the Las Vegas Valley and whether those locations also show local increases in land surface temperature. However, the dashboard is designed as an exploratory spatial evidence tool rather than a causal model. While it can help users identify where turf loss and higher land surface temperature appear together, it cannot, on its own, confirm that turf removal directly caused local warming, since other factors such as surface materials, urban form, and seasonal variation may also influence observed temperature patterns.</p>
+  </div>
+</div>
+
+<div class="section-wrapper" data-foldable>
+  <h3 id="sma-model-coverage" class="section-header" data-toggle="fold-sma">
+    <span class="fold-icon" id="icon-sma">&#9660;</span>
+    SMA Model Coverage
+  </h3>
+  <div class="section-collapsible" id="fold-sma">
+    <p>The SMA model was selected based on similar research from <a href="https://www.sciencedirect.com/science/article/pii/S0034425702001360">early SMA models</a> and our <a href="https://www.mdpi.com/2073-445X/7/4/135">region of interest</a>. Visual analysis reveals that the SMA model successfully identifies green space locations and changes over time. To assess the completeness of our SMA model more technically, we measure the root mean squared error (spectral RMSE) between every pixel's true band distribution and SMA-constructed band distribution.</p>
+    <div class="formula-block">
+      <em>RMSE = √( (1/7) × Σ<sub>b=1..7</sub> (ρ<sub>b</sub> − Σ<sub>k=1..5</sub> f<sub>k</sub> · e<sub>kb</sub>)² )</em>
+    </div>
+    <p>where <em>e<sub>kb</sub></em> is the reflectance of endmember <em>k</em> in band <em>b</em>, and, for a given pixel, <em>ρ<sub>b</sub></em> is the observed reflectance in spectral band <em>b</em>, and <em>f<sub>k</sub></em> is the estimated fraction of endmember <em>k</em> in the pixel.</p>
+    <p>Across all months, the SMA model achieves a spectral RMSE of 0.011 for our reflectance values which have been scaled between 0 and 1. Past research has established a spectral RMSE threshold of 0.025 for acceptable SMA model coverage (Roberts et al. 1998), indicating that, even for a SMA model like ours with more endmembers, the model captures the spectral dimensionality of our area well.</p>
+    <p>There still remains future potential for improvement with the model. Aggregated monthly RMSEs do reveal slight seasonal changes in accuracy (with winter months achieving a lower RMSE), and visual analysis indicates that errors are higher for bright impervious materials such as the white roofs of large corporate or government buildings.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- REFERENCES                                                      -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<h2 id="references">References</h2>
+
+<div class="ref-entry">Las Vegas Review-Journal (2026) <em>High court paves way for more parties to challenge 'nonfunctional grass' irrigation ban</em>. Available at: <a href="https://www.reviewjournal.com/news/civil-courts/high-court-paves-way-for-more-parties-to-challenge-nonfunctional-grass-irrigation-ban-3790366/">https://www.reviewjournal.com/…</a> (Accessed: 23 April 2026).</div>
+
+<div class="ref-entry">Mejía Valencia, J.F. et al. (2023) <em>The effect of removal of all non-functional turf in Las Vegas: tradeoffs between water conservation, excessive heat and storminess</em>. Available at: <a href="https://www.researchgate.net/publication/370171341">https://www.researchgate.net/…</a> (Accessed: 23 April 2026).</div>
+
+<div class="ref-entry">Nevada Legislature / LegiScan (2021) <em>Nevada Assembly Bill 356 (81st Legislature): Makes various changes relating to the conservation of water</em>. Available at: <a href="https://legiscan.com/NV/bill/AB356/2021">https://legiscan.com/…</a> (Accessed: 23 April 2026).</div>
+
+<div class="ref-entry">News 3 Las Vegas (2026) <em>Case No. A-26-937025-C Department 11</em> [PDF court complaint]. Available at: <a href="https://news3lv.com/resources/pdf/ea5538b8-1ef6-4872-8e0d-fc450e051355-A26937025CComplaintCOMPCIV.pdf">https://news3lv.com/…</a> (Accessed: 23 April 2026).</div>
+
+<div class="ref-entry">Saher, N. et al. (2018) 'Trend analysis of Las Vegas land cover and temperature using remote sensing', <em>Land</em>, 7(4), p. 135. Available at: <a href="https://www.mdpi.com/2073-445X/7/4/135">https://www.mdpi.com/…</a> (Accessed: 23 April 2026).</div>
+
+<div class="ref-entry">Schmidt, J.C., Yackulic, C.B. and Kuhn, E. (2023) 'The Colorado River water crisis: Its origin and the future', <em>WIREs Water</em>, 10(6), e1672. Available at: <a href="https://wires.onlinelibrary.wiley.com/doi/10.1002/wat2.1672">https://wires.onlinelibrary.wiley.com/…</a> (Accessed: 23 April 2026).</div>
+
+<div class="ref-entry">Southern Nevada Water Authority (2000) <em>Xeriscape Conversion Study</em>. Available at: <a href="https://www.snwa.com/assets/pdf/reports-xeriscape.pdf">https://www.snwa.com/…</a> (Accessed: 23 April 2026).</div>
+
+<div class="ref-entry">Southern Nevada Water Authority (2026) <em>SNWA Water Resource Plan: 2026 Appendices</em>. Available at: <a href="https://www.snwa.com/assets/pdf/water-resource-plan-appendices-2026.pdf">https://www.snwa.com/…</a> (Accessed: 23 April 2026).</div>
+
+<div class="ref-entry">Wu, C. and Murray, A.T. (2003) 'Estimating impervious surface distribution by spectral mixture analysis', <em>Remote Sensing of Environment</em>, 84(4), pp. 493–505. Available at: <a href="https://www.sciencedirect.com/science/article/pii/S0034425702001360">https://www.sciencedirect.com/…</a> (Accessed: 23 April 2026).</div>
+
+</div><!-- .page-content -->
+</div><!-- .page-body -->
+
+<!-- ── Back to top button ─────────────────────────── -->
+<button class="back-to-top" id="backToTop" aria-label="Back to top">&#8593;</button>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- SCRIPTS                                                         -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  // ── References ──────────────────────────────────
+  const dropdown = document.getElementById("contentsDropdown");
+  const btn = document.getElementById("contentsBtn");
+  const menu = document.getElementById("contentsMenu");
+  const links = menu.querySelectorAll("a[href^='#']");
+  const appZone = document.getElementById("appEmbedZone");
+  const progressBar = document.getElementById("scrollProgress");
+  const backToTop = document.getElementById("backToTop");
+  const allSections = document.querySelectorAll("h2[id], h3[id], h4[id]");
+
+  // ── 1. SCROLL POSITIONING (the main fix) ────────
+  // Use scroll-margin-top on CSS (already set) + JS click handler
+  // that uses native anchor scrolling with scroll-padding-top.
+  links.forEach(function (link) {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+      const id = this.getAttribute("href").substring(1);
+      const target = document.getElementById(id);
+      if (target) {
+        // Calculate exact position: heading flush below the navbar
+        const navHeight = document.querySelector('.navbar').offsetHeight;
+        const gap = 12; // small breathing room below navbar
+        const targetTop = target.getBoundingClientRect().top + window.pageYOffset;
+        window.scrollTo({
+          top: targetTop - navHeight - gap,
+          behavior: "smooth"
+        });
+        dropdown.classList.remove("is-open");
+        history.pushState(null, "", "#" + id);
+      }
+    });
+  });
+
+  // ── 2. TOC DROPDOWN toggle ──────────────────────
+  btn.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!dropdown.classList.contains("hide-over-app")) {
+      dropdown.classList.toggle("is-open");
+    }
+  });
+
+  document.addEventListener("click", function (e) {
+    if (!dropdown.contains(e.target)) {
+      dropdown.classList.remove("is-open");
+    }
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") dropdown.classList.remove("is-open");
+  });
+
+  // ── 3. HIDE TOC over app zone ───────────────────
+  function updateContentsVisibility() {
+    if (!appZone) return;
+    const dropdownRect = dropdown.getBoundingClientRect();
+    const appRect = appZone.getBoundingClientRect();
+    const overlaps =
+      dropdownRect.bottom > appRect.top &&
+      dropdownRect.top < appRect.bottom;
+    if (overlaps) {
+      dropdown.classList.add("hide-over-app");
+      dropdown.classList.remove("is-open");
+    } else {
+      dropdown.classList.remove("hide-over-app");
+    }
+  }
+
+  // ── 4. ACTIVE TOC HIGHLIGHTING ──────────────────
+  function updateActiveTocItem() {
+    const scrollY = window.scrollY;
+    const offset = 100;
+    let currentId = "";
+
+    allSections.forEach(function (section) {
+      const top = section.offsetTop - offset;
+      if (scrollY >= top) {
+        currentId = section.id;
+      }
+    });
+
+    links.forEach(function (link) {
+      const href = link.getAttribute("href").substring(1);
+      if (href === currentId) {
+        link.classList.add("active");
+      } else {
+        link.classList.remove("active");
+      }
+    });
+  }
+
+  // ── 5. SCROLL PROGRESS BAR ─────────────────────
+  function updateProgressBar() {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    progressBar.style.width = progress + "%";
+  }
+
+  // ── 6. BACK TO TOP ─────────────────────────────
+  function updateBackToTop() {
+    if (window.scrollY > 400) {
+      backToTop.classList.add("visible");
+    } else {
+      backToTop.classList.remove("visible");
+    }
+  }
+
+  backToTop.addEventListener("click", function () {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // ── 7. COLLAPSIBLE SECTIONS (dynamic folding) ──
+  const sectionHeaders = document.querySelectorAll(".section-header[data-toggle]");
+  sectionHeaders.forEach(function (header) {
+    const targetId = header.getAttribute("data-toggle");
+    const target = document.getElementById(targetId);
+    const iconId = targetId.replace("fold-", "icon-");
+    const icon = document.getElementById(iconId);
+
+    header.addEventListener("click", function (e) {
+      // Don't fold if clicking a link inside the header
+      if (e.target.tagName === "A") return;
+
+      if (target.classList.contains("collapsed")) {
+        // Expand
+        target.classList.remove("collapsed");
+        if (icon) icon.classList.remove("rotated");
+      } else {
+        // Collapse
+        target.classList.add("collapsed");
+        if (icon) icon.classList.add("rotated");
+      }
+    });
+  });
+
+  // ── 8. AUTO-FOLD sections when scrolling past app ──
+  // When the app embed comes into view, collapse methodology
+  // sections above to keep the page tidy.
+  let hasAutoFolded = false;
+  function autoFoldOnAppScroll() {
+    if (hasAutoFolded || !appZone) return;
+    const appRect = appZone.getBoundingClientRect();
+    // When app zone enters the viewport
+    if (appRect.top < window.innerHeight * 0.8) {
+      hasAutoFolded = true;
+      // Collapse methodology subsections
+      ["fold-greenspace", "fold-water", "fold-seasonal"].forEach(function (id) {
+        const el = document.getElementById(id);
+        const iconEl = document.getElementById(id.replace("fold-", "icon-"));
+        if (el && !el.classList.contains("collapsed")) {
+          el.classList.add("collapsed");
+          if (iconEl) iconEl.classList.add("rotated");
+        }
+      });
+    }
+  }
+
+  // ── Combined scroll handler (throttled) ─────────
+  let ticking = false;
+  window.addEventListener("scroll", function () {
+    if (!ticking) {
+      window.requestAnimationFrame(function () {
+        updateContentsVisibility();
+        updateActiveTocItem();
+        updateProgressBar();
+        updateBackToTop();
+        autoFoldOnAppScroll();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+
+  window.addEventListener("resize", updateContentsVisibility);
+
+  // ── Initial state ───────────────────────────────
+  updateContentsVisibility();
+  updateActiveTocItem();
+  updateProgressBar();
+
+  // ── Handle initial hash in URL ──────────────────
+  if (window.location.hash) {
+    const hashTarget = document.getElementById(window.location.hash.substring(1));
+    if (hashTarget) {
+      setTimeout(function () {
+        const navHeight = document.querySelector('.navbar').offsetHeight;
+        const gap = 12;
+        const targetTop = hashTarget.getBoundingClientRect().top + window.pageYOffset;
+        window.scrollTo({ top: targetTop - navHeight - gap, behavior: "smooth" });
+      }, 100);
+    }
+  }
+});
+</script>
+
+</body>
+</html>
