@@ -145,12 +145,12 @@ a:hover {
 }
 
 /* ---------- Contents sidebar / TOC ---------- */
-.sidebar nav[role=doc-toc] {
+/* .sidebar nav[role=doc-toc] {
     position: sticky;
     top: 2rem;
     max-height: calc(100vh - 4rem);
     overflow-y: auto;
-}
+} */
 
 
 /* ---------- Footer ---------- */
@@ -441,7 +441,7 @@ body.quarto-dark .contents-menu a:hover {
     }
 }
 
-/* ---------- Fix section jump position from Contents dropdown ---------- */
+/* ---------- Fix section jump position from Contents dropdown ----------
 html {
     scroll-padding-top: 7rem;
 }
@@ -449,7 +449,7 @@ html {
 h1, h2, h3, h4, h5, h6,
 [id] {
     scroll-margin-top: 7rem;
-}
+} */
 
 /* ---------- Hide Contents tab when it overlaps the embedded app ---------- */
 .contents-dropdown.hide-over-app {
