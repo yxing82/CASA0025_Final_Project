@@ -7,10 +7,10 @@ page-layout: full
 <style>
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 68px;
+  scroll-padding-top: 60px;
 }
 h1, h2, h3, h4 {
-  scroll-margin-top: 68px;
+  scroll-margin-top: 6px;
 }
 </style>
 
