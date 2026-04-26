@@ -1210,20 +1210,29 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    const targetTop = target.getBoundingClientRect().top + window.pageYOffset;
-
     /*
-      Bigger offset = heading appears lower on the screen.
-      0.45 means heading lands around upper-middle of page.
+      LANDING POSITION:
+      160px means the section heading appears near the top-middle area,
+      with the section content visible underneath.
+      Smaller number = heading closer to top.
+      Bigger number = heading lower down.
     */
-    const offset = Math.round(window.innerHeight * 0.45);
+    const landingFromTop = 160;
 
-    const position = Math.max(targetTop - offset, 0);
+    const targetTop = target.getBoundingClientRect().top + window.pageYOffset;
+    const position = Math.max(targetTop - landingFromTop, 0);
 
     window.scrollTo({
       top: position,
       behavior: "smooth"
     });
+
+    setTimeout(function () {
+      window.scrollTo({
+        top: position,
+        behavior: "auto"
+      });
+    }, 250);
   }
 
   function updateContentsVisibility() {
@@ -1265,11 +1274,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const id = this.getAttribute("href").replace("#", "");
 
       dropdown.classList.remove("is-open");
-      history.pushState(null, "", window.location.pathname + window.location.search);
+
+      history.replaceState(null, "", window.location.pathname + window.location.search);
 
       setTimeout(function () {
         scrollToSection(id);
-      }, 50);
+      }, 80);
     });
   });
 

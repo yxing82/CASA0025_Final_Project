@@ -856,18 +856,28 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     /*
-      This controls where the heading appears.
-      0.22 means the heading lands about 22% down from the top of the screen.
-      This shows the heading clearly and leaves the majority of the section visible.
+      LANDING POSITION:
+      160px means the section heading appears near the top-middle area,
+      with the section content visible underneath.
+      Smaller number = heading closer to top.
+      Bigger number = heading lower down.
     */
-    const offset = Math.round(window.innerHeight * 0.22);
+    const landingFromTop = 160;
+
     const targetTop = target.getBoundingClientRect().top + window.pageYOffset;
-    const position = Math.max(targetTop - offset, 0);
+    const position = Math.max(targetTop - landingFromTop, 0);
 
     window.scrollTo({
       top: position,
       behavior: "smooth"
     });
+
+    setTimeout(function () {
+      window.scrollTo({
+        top: position,
+        behavior: "auto"
+      });
+    }, 250);
   }
 
   function updateContentsVisibility() {
@@ -910,15 +920,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
       dropdown.classList.remove("is-open");
 
-      /*
-        Remove the hash so the browser/Quarto does NOT do its own jump.
-        Then we control the scroll position ourselves.
-      */
-      history.pushState(null, "", window.location.pathname + window.location.search);
+      history.replaceState(null, "", window.location.pathname + window.location.search);
 
       setTimeout(function () {
         scrollToSection(id);
-      }, 50);
+      }, 80);
     });
   });
 
