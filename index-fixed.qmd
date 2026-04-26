@@ -891,7 +891,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const id = this.getAttribute("href").substring(1);
       const target = document.getElementById(id);
       if (target) {
-        const OFFSET = 90;
+        const OFFSET = 120;
         const pos = target.getBoundingClientRect().top + window.pageYOffset - OFFSET;
         window.scrollTo({ top: pos, behavior: "smooth" });
         dropdown.classList.remove("is-open");
