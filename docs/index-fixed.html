@@ -347,10 +347,10 @@ window.Quarto = {
 <style>
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 80px;
+  scroll-padding-top: 90px;
 }
 h1, h2, h3, h4 {
-  scroll-margin-top: 80px;
+  scroll-margin-top: 90px;
 }
 </style>
 <div class="contents-dropdown">
@@ -1249,7 +1249,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const target = document.getElementById(id);
       if (target) {
         const navBar = document.querySelector(".navbar");
-        const navHeight = navBar ? navBar.offsetHeight : 56;
+        const navHeight = 78;
         const gap = 12;
         const targetTop = target.getBoundingClientRect().top + window.pageYOffset;
         window.scrollTo({
@@ -1278,7 +1278,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (hashTarget) {
       setTimeout(function () {
         const navBar = document.querySelector(".navbar");
-        const navHeight = navBar ? navBar.offsetHeight : 56;
+        const navHeight = 78;
         const gap = 12;
         const targetTop = hashTarget.getBoundingClientRect().top + window.pageYOffset;
         window.scrollTo({ top: targetTop - navHeight - gap, behavior: "smooth" });
