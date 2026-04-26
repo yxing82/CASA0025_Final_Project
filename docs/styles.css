@@ -441,15 +441,18 @@ body.quarto-dark .contents-menu a:hover {
     }
 }
 
-/* ---------- Fix section jump position from Contents dropdown ----------
+/* ---------- Fix section jump position from Contents dropdown ---------- */
+/* Navbar is position:relative (scrolls away), so we only need a small
+   breathing gap — NOT a large offset for a fixed header.                */
 html {
-    scroll-padding-top: 7rem;
+    scroll-behavior: smooth;
+    scroll-padding-top: 1rem;
 }
 
 h1, h2, h3, h4, h5, h6,
-[id] {
-    scroll-margin-top: 7rem;
-} */
+section[id] {
+    scroll-margin-top: 1rem;
+}
 
 /* ---------- Hide Contents tab when it overlaps the embedded app ---------- */
 .contents-dropdown.hide-over-app {
