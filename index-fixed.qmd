@@ -808,37 +808,37 @@ function updateTimeModeUI() {
 ```{=html}
 <div class="contributors-grid">
   <a href="https://github.com/yxing82" class="contributor-card">
-    <div class="contributor-avatar" style="background:#7a8152;">Y</div>
+    <div class="contributor-avatar" style="background:#7a8152;">YX</div>
     <span class="contributor-name">Yujing (Olivia) Xing</span>
     <span class="contributor-role">GEE App Architecture, UI/UX Design & Development, Concept Direction</span>
     <span class="contributor-github">github.com/yxing82</span>
   </a>
   <a href="https://github.com/lukegbenson" class="contributor-card">
-    <div class="contributor-avatar" style="background:#7a8152;">L</div>
+    <div class="contributor-avatar" style="background:#7a8152;">LB</div>
     <span class="contributor-name">Luke Benson</span>
     <span class="contributor-role">SMA/FVC Methodology, Vegetation Analysis, Project Concept</span>
     <span class="contributor-github">github.com/lukegbenson</span>
   </a>
   <a href="https://github.com/casagochman" class="contributor-card">
-    <div class="contributor-avatar" style="background:#7a8152;">Y</div>
+    <div class="contributor-avatar" style="background:#7a8152;">YG</div>
     <span class="contributor-name">Yoav Gochman</span>
     <span class="contributor-role">LST Analysis, Water Consumption, Preprocessing</span>
     <span class="contributor-github">github.com/casagochman</span>
   </a>
   <a href="https://github.com/christychoicc" class="contributor-card">
-    <div class="contributor-avatar" style="background:#7a8152;">C</div>
+    <div class="contributor-avatar" style="background:#7a8152;">CC</div>
     <span class="contributor-name">Christy Choi</span>
     <span class="contributor-role">Preprocessing, GEE UI/UX Design, Legend System, Documentation</span>
     <span class="contributor-github">github.com/christychoicc</span>
   </a>
   <a href="https://github.com/hawaiie-star" class="contributor-card">
-    <div class="contributor-avatar" style="background:#7a8152;">W</div>
+    <div class="contributor-avatar" style="background:#7a8152;">WT</div>
     <span class="contributor-name">Waiie Tsang</span>
     <span class="contributor-role">Literature Review, Narrative Content</span>
     <span class="contributor-github">github.com/hawaiie-star</span>
   </a>
   <a href="https://github.com/Nanxi-lu" class="contributor-card">
-    <div class="contributor-avatar" style="background:#7a8152;">L</div>
+    <div class="contributor-avatar" style="background:#7a8152;">NL</div>
     <span class="contributor-name">Nanxi Lu</span>
     <span class="contributor-role">Literature Review, Narrative Content</span>
     <span class="contributor-github">github.com/Nanxi-lu</span>
