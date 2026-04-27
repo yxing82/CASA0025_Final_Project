@@ -34,6 +34,7 @@ section, .level1, .level2, .level3, .level4 {
 - [How it Works](#how-it-works)
   - [Data Preparation and Precomputation](#data-preparation-and-precomputation)
   - [Interactive Visualisation and Analysis](#interactive-visualisation-and-analysis)
+- [Contributors](#contributors)
 - [Appendix](#appendix)
   - [Causal Interpretation Warning](#causal-interpretation-warning)
   - [Data Limitations](#data-limitations)
@@ -802,34 +803,6 @@ function updateTimeModeUI() {
 ```
 :::
 
-## Appendix
-
-### Causal Interpretation Warning
-
-The project seeks to identify where non-functional turf appears to have been removed across the Las Vegas Valley and whether those locations also show local increases in land surface temperature. However, the dashboard is designed as an exploratory spatial evidence tool rather than a causal model. While it can help users identify where turf loss and higher land surface temperature appear together, it cannot, on its own, confirm that turf removal directly caused local warming, since other factors such as surface materials, urban form, and seasonal variation may also influence observed temperature patterns.
-
-### Data Limitations
-
-Data is provided at 10-meter resolution for turf detection and 30-meter resolution for land surface temperature and water consumption estimates. In an ideal world, we could utilize data at even finer resolution to allow users to view turf loss and environmental changes at a more granular level.
-
-Additionally, pixels which were removed for an entire month due to cloud coverage were gap-filled with values from the previous month. While cloud coverage is generally sparse in the region, this process does slightly increase the chances of masking small changes at a local level from month-to-month.
-
-Finally, the OpenET Ensemble product uses land surface temperature and vegetation indices as model inputs, meaning that ET is not fully independent from the other variables in the composite index. We retain it because its constituent models integrate these inputs alongside additional meteorological and energy-balance information through non-linear physical process models, producing a physically distinct quantity: the actual water flux leaving the surface, rather than a redundant measure of greenness or temperature. Additionally, ET does not distinguish between water sources, and the substitution of SSEBop for Ensemble in 2025 may introduce inter-model inconsistencies.
-
-### SMA Model Coverage
-
-The SMA model was devised based on similar research from [early SMA models](https://www.sciencedirect.com/science/article/pii/S0034425702001360) and our [region of interest](https://www.mdpi.com/2073-445X/7/4/135). Visual analysis reveals that the SMA model successfully identifies green space locations and changes over time. To assess the completeness of our SMA model more technically, we measure the global root mean squared error (spectral RMSE) using every pixel’s true band distribution and SMA-constructed band distribution.
-
-$$
-RMSE_{global} = \sqrt{\frac{1}{N}\sum_{i=1}^{N}\frac{1}{7}\sum_{b=1}^{7}\left(\rho_{ib}-\sum_{k=1}^{5}f_{k}^{(i)}\cdot e_{kb}\right)^{2}}
-$$
-
-where, $e_{kb}$ is the reflectance of endmember $k$ in band $b$, and, for a given pixel $i$, $\rho_{ib}$ is the observed reflectance in spectral band $b$, and $f_{k}^{(i)}$ is the estimated fraction of endmember $k$ in the pixel.
-
-Across all months, the SMA model achieves a spectral RMSE of 0.0196 for our reflectance values which have been scaled between 0 and 1. Past research has established a spectral RMSE threshold of 0.025 for acceptable SMA model coverage (Roberts et al. 1998), indicating that, even for a SMA model like ours with more endmembers, the model captures the spectral dimensionality of our area well.
-
-There still remains future potential for improvement with the methodology. Aggregated monthly RMSEs do reveal slight seasonal changes in accuracy (with winter months achieving a lower RMSE), and visual analysis indicates that errors are higher for bright impervious materials such as the white roofs of large corporate or government buildings. 
-
 ## Contributors
 
 ```{=html}
@@ -872,6 +845,36 @@ There still remains future potential for improvement with the methodology. Aggre
   </a>
 </div>
 ```
+
+## Appendix
+
+### Causal Interpretation Warning
+
+The project seeks to identify where non-functional turf appears to have been removed across the Las Vegas Valley and whether those locations also show local increases in land surface temperature. However, the dashboard is designed as an exploratory spatial evidence tool rather than a causal model. While it can help users identify where turf loss and higher land surface temperature appear together, it cannot, on its own, confirm that turf removal directly caused local warming, since other factors such as surface materials, urban form, and seasonal variation may also influence observed temperature patterns.
+
+### Data Limitations
+
+Data is provided at 10-meter resolution for turf detection and 30-meter resolution for land surface temperature and water consumption estimates. In an ideal world, we could utilize data at even finer resolution to allow users to view turf loss and environmental changes at a more granular level.
+
+Additionally, pixels which were removed for an entire month due to cloud coverage were gap-filled with values from the previous month. While cloud coverage is generally sparse in the region, this process does slightly increase the chances of masking small changes at a local level from month-to-month.
+
+Finally, the OpenET Ensemble product uses land surface temperature and vegetation indices as model inputs, meaning that ET is not fully independent from the other variables in the composite index. We retain it because its constituent models integrate these inputs alongside additional meteorological and energy-balance information through non-linear physical process models, producing a physically distinct quantity: the actual water flux leaving the surface, rather than a redundant measure of greenness or temperature. Additionally, ET does not distinguish between water sources, and the substitution of SSEBop for Ensemble in 2025 may introduce inter-model inconsistencies.
+
+### SMA Model Coverage
+
+The SMA model was devised based on similar research from [early SMA models](https://www.sciencedirect.com/science/article/pii/S0034425702001360) and our [region of interest](https://www.mdpi.com/2073-445X/7/4/135). Visual analysis reveals that the SMA model successfully identifies green space locations and changes over time. To assess the completeness of our SMA model more technically, we measure the global root mean squared error (spectral RMSE) using every pixel’s true band distribution and SMA-constructed band distribution.
+
+$$
+RMSE_{global} = \sqrt{\frac{1}{N}\sum_{i=1}^{N}\frac{1}{7}\sum_{b=1}^{7}\left(\rho_{ib}-\sum_{k=1}^{5}f_{k}^{(i)}\cdot e_{kb}\right)^{2}}
+$$
+
+where, $e_{kb}$ is the reflectance of endmember $k$ in band $b$, and, for a given pixel $i$, $\rho_{ib}$ is the observed reflectance in spectral band $b$, and $f_{k}^{(i)}$ is the estimated fraction of endmember $k$ in the pixel.
+
+Across all months, the SMA model achieves a spectral RMSE of 0.0196 for our reflectance values which have been scaled between 0 and 1. Past research has established a spectral RMSE threshold of 0.025 for acceptable SMA model coverage (Roberts et al. 1998), indicating that, even for a SMA model like ours with more endmembers, the model captures the spectral dimensionality of our area well.
+
+There still remains future potential for improvement with the methodology. Aggregated monthly RMSEs do reveal slight seasonal changes in accuracy (with winter months achieving a lower RMSE), and visual analysis indicates that errors are higher for bright impervious materials such as the white roofs of large corporate or government buildings. 
+
+
 
 
 ##  References
