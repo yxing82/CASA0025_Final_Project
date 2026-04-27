@@ -834,7 +834,7 @@ There still remains future potential for improvement with the methodology. Aggre
 
 <div class="contributors-grid">
   <a href="https://github.com/yxing82" class="contributor-card">
-    <div class="contributor-avatar" style="background:#7a8152;">O</div>
+    <div class="contributor-avatar" style="background:#7a8152;">Y</div>
     <p class="contributor-name">Yujing (Olivia) Xing</p>
     <p class="contributor-role">GEE App Architecture, UI/UX Design & Development, Concept Direction</p>
     <p class="contributor-github">github.com/yxing82</p>
@@ -842,9 +842,8 @@ There still remains future potential for improvement with the methodology. Aggre
 </div>
 
 <div class="contributors-grid">
-  <!-- repeat for Luke, Yoav, Christy, Nanxi, Waiie -->
     <a href="https://github.com/lukegbenson" class="contributor-card">
-    <div class="contributor-avatar" style="background:#7a8152;">O</div>
+    <div class="contributor-avatar" style="background:#7a8152;">L</div>
     <p class="contributor-name">Luke Benson</p>
     <p class="contributor-role">SMA/FVC Methodology, Vegetation Anlysis, Project Concept</p>
     <p class="contributor-github">github.com/lukegbenson</p>
@@ -853,7 +852,7 @@ There still remains future potential for improvement with the methodology. Aggre
 
 <div class="contributors-grid">
   <a href="https://github.com/casagochman" class="contributor-card">
-    <div class="contributor-avatar" style="background:#7a8152;">O</div>
+    <div class="contributor-avatar" style="background:#7a8152;">Y</div>
     <p class="contributor-name">Yoav Gochman</p>
     <p class="contributor-role">LST Analysis, water consumption</p>
     <p class="contributor-github">github.com/casagochman</p>
@@ -861,8 +860,17 @@ There still remains future potential for improvement with the methodology. Aggre
 </div>
 
 <div class="contributors-grid">
+  <a href="https://github.com/christychoicc" class="contributor-card">
+    <div class="contributor-avatar" style="background:#7a8152;">C</div>
+    <p class="contributor-name">Christy Choi</p>
+    <p class="contributor-role">Preprocessing, GEE UI/UX design, Legend System, Documentation</p>
+    <p class="contributor-github">github.com/christychoicc</p>
+  </a>
+</div>
+
+<div class="contributors-grid">
   <a href="https://github.com/hawaiie-star" class="contributor-card">
-    <div class="contributor-avatar" style="background:#7a8152;">O</div>
+    <div class="contributor-avatar" style="background:#7a8152;">W</div>
     <p class="contributor-name">Waiie Tsang</p>
     <p class="contributor-role">Literature Review, Narrative Content</p>
     <p class="contributor-github">github.com/hawaiie-star</p>
@@ -871,8 +879,8 @@ There still remains future potential for improvement with the methodology. Aggre
 
 <div class="contributors-grid">
   <a href="https://github.com/Nanxi-lu" class="contributor-card">
-    <div class="contributor-avatar" style="background:#7a8152;">O</div>
-    <p class="contributor-name">Christy Choi</p>
+    <div class="contributor-avatar" style="background:#7a8152;">L</div>
+    <p class="contributor-name">Nanxi Lu</p>
     <p class="contributor-role">Literature Review, Narrative Content</p>
     <p class="contributor-github">github.com/Nanxi-lu</p>
   </a>
