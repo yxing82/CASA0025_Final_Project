@@ -466,7 +466,7 @@ section[id] {
 /* ---------- Contributors Section ---------- */
 .contributors-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
     margin: 1.5rem 0 2rem;
 }
