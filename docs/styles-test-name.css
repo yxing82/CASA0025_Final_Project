@@ -517,6 +517,7 @@ body.quarto-dark .contributor-card {
 .avatar-5 { background-color: #b4b2a9; }
 
 .contributor-name {
+    display: block;
     font-size: 1.05rem !important;
     font-weight: 600;
     margin: 0 0 4px !important;
@@ -531,6 +532,7 @@ body.quarto-dark .contributor-name {
 }
 
 .contributor-role {
+    display: block;
     font-size: 0.82rem !important;
     line-height: 1.45;
     margin: 0 !important;
@@ -545,6 +547,7 @@ body.quarto-dark .contributor-role {
 }
 
 .contributor-github {
+    display: block;
     font-size: 0.78rem !important;
     font-weight: 500;
     color: #7a8152 !important;
