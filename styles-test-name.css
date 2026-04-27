@@ -1,0 +1,570 @@
+/* ---------- Disable sticky / scroll-following navbar ---------- */
+#quarto-header,
+#quarto-header.headroom,
+#quarto-header.headroom--pinned,
+#quarto-header.headroom--unpinned {
+    position: relative !important;
+    top: 0 !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+    will-change: auto !important;
+}
+
+body.nav-fixed,
+body.quarto-light.nav-fixed,
+body.quarto-dark.nav-fixed {
+    padding-top: 0 !important;
+}
+
+/* ---------- Navbar with image ---------- */
+#quarto-header .navbar {
+    background-image: url("images/banner.jpeg");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    min-height: 280px;
+    border: none;
+    box-shadow: none;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+/* dark overlay so nav text stays readable */
+#quarto-header .navbar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.22);
+    pointer-events: none;
+}
+
+#quarto-header .navbar .container-fluid,
+#quarto-header .navbar .container-xxl {
+    position: relative;
+    z-index: 1;
+}
+
+/* navbar text/icons on top of image */
+#quarto-header .navbar-brand,
+#quarto-header .navbar .nav-link,
+#quarto-header .navbar .navbar-title,
+#quarto-header .navbar .menu-text,
+#quarto-header .navbar .bi,
+#quarto-header .navbar .navbar-toggler {
+    color: #ffffff !important;
+}
+
+#quarto-header .navbar .nav-link:hover,
+#quarto-header .navbar .navbar-brand:hover,
+#quarto-header .navbar .menu-text:hover {
+    color: #f3efe6 !important;
+    text-decoration: none;
+}
+
+#quarto-header .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* ---------- keep built-in light/dark mode working ---------- */
+/* Do NOT hardcode page background/text colors globally */
+body {
+    line-height: 1.7;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* ---------- Main content spacing ---------- */
+main.content,
+#quarto-content {
+    padding-top: 2rem;
+}
+
+/* ---------- Headings ---------- */
+h1, .h1 {
+    font-size: 3rem;
+    font-weight: 700;
+}
+
+h2, .h2 {
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: #7a8152;
+}
+
+h3, .h3 {
+    font-size: 1.6rem;
+    font-weight: 500;
+}
+
+body.quarto-light h3,
+body.quarto-light .h3 {
+    color: #7f865e;
+}
+
+body.quarto-dark h3,
+body.quarto-dark .h3 {
+    color: #b9c08f;
+}
+
+h4, .h4 {
+    font-size: 1.3rem;
+    font-weight: 500;
+}
+
+body.quarto-light h4,
+body.quarto-light .h4 {
+    color: #989d78;
+}
+
+body.quarto-dark h4,
+body.quarto-dark .h4 {
+    color: #d1d5ad;
+}
+
+/* ---------- Links ---------- */
+a {
+    color: #7a8152;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+a:hover {
+    color: #9c8b70;
+    text-decoration: underline;
+}
+
+/* ---------- Sidebar TOC ---------- */
+.sidebar nav[role=doc-toc] ul > li > a.active,
+.sidebar nav[role=doc-toc] ul > li > ul > li > a.active,
+.sidebar nav[role=doc-toc] ul > li > a:hover,
+.sidebar nav[role=doc-toc] ul > li > ul > li > a:hover {
+    color: #9c8b70 !important;
+    border-left: 2px solid #9c8b70;
+    padding-left: 8px;
+}
+
+/* ---------- Contents sidebar / TOC ---------- */
+/* .sidebar nav[role=doc-toc] {
+    position: sticky;
+    top: 2rem;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+} */
+
+
+/* ---------- Footer ---------- */
+.footer-items .nav-link {
+    color: #7a8152 !important;
+    font-size: 0.95rem;
+}
+
+/* ---------- Paragraphs ---------- */
+p {
+    font-size: 1.1rem;
+}
+
+/* ---------- Inline Code ---------- */
+code {
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Courier New", monospace;
+}
+
+/* general inline code appearance */
+body.quarto-light code {
+    background-color: rgba(231, 225, 211, 0.6);
+    color: #6f42c1;
+}
+
+body.quarto-dark code {
+    background-color: rgba(70, 70, 70, 0.9);
+    color: #ffffff;
+}
+
+/* ---------- Code Blocks ---------- */
+/* light mode code blocks */
+body.quarto-light pre,
+body.quarto-light .sourceCode,
+body.quarto-light div.sourceCode {
+    background-color: #f8f7f4 !important;
+    color: #2f2a24 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 8px;
+}
+
+/* remove inner border / nested box in light mode */
+body.quarto-light pre code,
+body.quarto-light .sourceCode code,
+body.quarto-light div.sourceCode code {
+    background: transparent !important;
+    color: #2f2a24 !important;
+    border: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+/* force syntax-highlighted text readable in light mode */
+body.quarto-light .sourceCode span,
+body.quarto-light pre span {
+    color: #2f2a24 !important;
+}
+
+/* dark mode code blocks — same style logic, no inner border */
+body.quarto-dark pre,
+body.quarto-dark .sourceCode,
+body.quarto-dark div.sourceCode {
+    background-color: #2b2b2b !important;
+    color: #f3f3f3 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 8px;
+}
+
+/* remove inner border / nested box in dark mode */
+body.quarto-dark pre code,
+body.quarto-dark .sourceCode code,
+body.quarto-dark div.sourceCode code {
+    background: transparent !important;
+    color: #f3f3f3 !important;
+    border: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+/* force syntax-highlighted text readable in dark mode */
+body.quarto-dark .sourceCode span,
+body.quarto-dark pre span {
+    color: #f3f3f3 !important;
+}
+
+/* ---------- Custom highlighted inline words like `About` ---------- */
+/* lighter grey background in light mode */
+body.quarto-light p code,
+body.quarto-light li code,
+body.quarto-light td code {
+    background-color: #ececec !important;
+    color: #6f42c1 !important;
+}
+
+/* dark grey background in dark mode */
+body.quarto-dark p code,
+body.quarto-dark li code,
+body.quarto-dark td code {
+    background-color: #4a4a4a !important;
+    color: #ffffff !important;
+}
+
+/* ---------- Table Styles ---------- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 24px 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    border: 1px solid #d6d6d6;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+    background: transparent;
+}
+
+th, td {
+    padding: 14px 16px;
+    vertical-align: middle;
+    text-align: center;
+    border: 1px solid #d6d6d6;
+}
+
+td.description {
+    text-align: left;
+}
+
+tr:nth-child(even) {
+    background-color: transparent;
+}
+
+tr:hover {
+    background-color: transparent;
+}
+
+/* light mode table */
+body.quarto-light table {
+    border-color: #d6d6d6;
+}
+
+body.quarto-light th,
+body.quarto-light td {
+    border-color: #d6d6d6;
+}
+
+body.quarto-light th {
+    background-color: #efede6;
+    color: #3b322c;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* dark mode table */
+body.quarto-dark table {
+    border-color: #4a4a4a;
+}
+
+body.quarto-dark th,
+body.quarto-dark td {
+    border-color: #4a4a4a;
+}
+
+body.quarto-dark th {
+    background-color: #3a3a3a;
+    color: #ffffff;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+body.quarto-dark td {
+    color: #f3f3f3;
+    background-color: transparent;
+}
+
+/* ---------- Hide empty page title block if Quarto still renders one ---------- */
+#title-block-header {
+    display: none !important;
+}
+
+/* ---------- Clickable Contents Dropdown ---------- */
+.contents-dropdown {
+    position: fixed;
+    top: 1rem !important;
+    right: 1.5rem;
+    z-index: 800;
+    width: 260px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+
+.contents-button {
+    width: 100%;
+    background-color: #efede6;
+    color: #3b322c;
+    border: 1px solid #d6d6d6;
+    border-radius: 6px;
+    padding: 0.55rem 0.8rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+
+.contents-menu {
+    display: none;
+    background-color: #efede6;
+    border: 1px solid #d6d6d6;
+    border-radius: 6px;
+    margin-top: 0.25rem;
+    max-height: 65vh;
+    overflow-y: auto;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    padding: 0.35rem 0;
+}
+
+.contents-dropdown.is-open .contents-menu {
+    display: block;
+}
+
+.contents-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.contents-menu li {
+    margin: 0;
+    padding: 0;
+}
+
+.contents-menu a {
+    display: block;
+    margin: 0 !important;
+    line-height: 1.25 !important;
+    color: #3b322c !important;
+    text-decoration: none !important;
+    font-size: 0.92rem !important;
+    font-weight: 500 !important;
+    padding: 0.42rem 0.8rem;
+}
+
+.contents-menu ul ul a {
+    padding-left: 1.8rem;
+    font-size: 0.86rem !important;
+    opacity: 0.9;
+}
+
+.contents-menu ul ul a::before {
+    content: "› ";
+}
+
+.contents-menu a:hover {
+    background-color: #ded9c9;
+    color: #7a8152 !important;
+}
+
+/* dark mode */
+body.quarto-dark .contents-button,
+body.quarto-dark .contents-menu {
+    background-color: #2b2b2b;
+    color: #ffffff;
+    border-color: #4a4a4a;
+}
+
+body.quarto-dark .contents-menu a {
+    color: #ffffff !important;
+}
+
+body.quarto-dark .contents-menu a:hover {
+    background-color: #3a3a3a;
+    color: #b9c08f !important;
+}
+
+/* smaller screens: move it into normal flow so it does not cover content */
+@media (max-width: 900px) {
+    .contents-dropdown {
+        position: relative;
+        top: auto !important;
+        right: auto;
+        width: 100%;
+        max-width: 320px;
+        margin: 1rem 0 2rem auto;
+        z-index: 1;
+    }
+}
+
+/* ---------- Fix section jump position from Contents dropdown ---------- */
+/* Navbar is position:relative (scrolls away), so we only need a small
+   breathing gap — NOT a large offset for a fixed header.                */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 1rem;
+}
+
+h1, h2, h3, h4, h5, h6,
+section[id] {
+    scroll-margin-top: 1rem;
+}
+
+/* ---------- Hide Contents tab when it overlaps the embedded app ---------- */
+.contents-dropdown.hide-over-app {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+/* CONTENTS SIDE BAR SETTINGS IN INDEX.QMD
+
+/* ---------- Contributors Section ---------- */
+.contributors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 16px;
+    margin: 1.5rem 0 2rem;
+}
+
+.contributor-card {
+    display: block;
+    border-radius: 10px;
+    padding: 1.25rem 1rem;
+    text-align: center;
+    text-decoration: none !important;
+    transition: border-color 0.2s ease, transform 0.15s ease;
+}
+
+body.quarto-light .contributor-card {
+    background-color: #f8f7f4;
+    border: 1px solid #e0ded6;
+}
+
+body.quarto-dark .contributor-card {
+    background-color: #2b2b2b;
+    border: 1px solid #4a4a4a;
+}
+
+.contributor-card:hover {
+    border-color: #7a8152 !important;
+    transform: translateY(-2px);
+    text-decoration: none !important;
+}
+
+.contributor-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+}
+
+.avatar-1 { background-color: #7a8152; }
+.avatar-2 { background-color: #9c8b70; }
+.avatar-3 { background-color: #8a9060; }
+.avatar-4 { background-color: #a8a398; }
+.avatar-5 { background-color: #b4b2a9; }
+
+.contributor-name {
+    font-size: 1.05rem !important;
+    font-weight: 600;
+    margin: 0 0 4px !important;
+}
+
+body.quarto-light .contributor-name {
+    color: #3b322c;
+}
+
+body.quarto-dark .contributor-name {
+    color: #f3f3f3;
+}
+
+.contributor-role {
+    font-size: 0.82rem !important;
+    line-height: 1.45;
+    margin: 0 !important;
+}
+
+body.quarto-light .contributor-role {
+    color: #6b6560;
+}
+
+body.quarto-dark .contributor-role {
+    color: #a8a8a8;
+}
+
+.contributor-github {
+    font-size: 0.78rem !important;
+    font-weight: 500;
+    color: #7a8152 !important;
+    margin: 8px 0 0 !important;
+}
+
+body.quarto-dark .contributor-github {
+    color: #b9c08f !important;
+}
+
+/* on small screens, go 2 columns then 1 */
+@media (max-width: 600px) {
+    .contributors-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+}
+
+@media (max-width: 380px) {
+    .contributors-grid {
+        grid-template-columns: 1fr;
+    }
+}

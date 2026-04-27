@@ -2,7 +2,7 @@
 title: ""
 toc: false
 page-layout: full
-css: styles-test.css
+css: styles-test-name.css
 ---
 
 <style>
@@ -829,6 +829,44 @@ where, $e_{kb}$ is the reflectance of endmember $k$ in band $b$, and, for a give
 Across all months, the SMA model achieves a spectral RMSE of 0.0196 for our reflectance values which have been scaled between 0 and 1. Past research has established a spectral RMSE threshold of 0.025 for acceptable SMA model coverage (Roberts et al. 1998), indicating that, even for a SMA model like ours with more endmembers, the model captures the spectral dimensionality of our area well.
 
 There still remains future potential for improvement with the methodology. Aggregated monthly RMSEs do reveal slight seasonal changes in accuracy (with winter months achieving a lower RMSE), and visual analysis indicates that errors are higher for bright impervious materials such as the white roofs of large corporate or government buildings. 
+
+## Contributors
+
+<div class="contributors-grid">
+  <a href="https://github.com/yxing82" class="contributor-card">
+    <div class="contributor-avatar" style="background:#7a8152;">O</div>
+    <p class="contributor-name">Yujing (Olivia) Xing</p>
+    <p class="contributor-role">GEE App Architecture, UI/UX Design & Development, Concept Direction</p>
+    <p class="contributor-github">github.com/yxing82</p>
+  </a>
+  <!-- repeat for Luke, Yoav, Christy, Nanxi, Waiie -->
+    <a href="https://github.com/lukegbenson" class="contributor-card">
+    <div class="contributor-avatar" style="background:#7a8152;">O</div>
+    <p class="contributor-name">Luke Benson</p>
+    <p class="contributor-role">SMA/FVC Methodology, Vegetation Anlysis, Project Concept</p>
+    <p class="contributor-github">github.com/lukegbenson</p>
+  </a>
+  <a href="https://github.com/casagochman" class="contributor-card">
+    <div class="contributor-avatar" style="background:#7a8152;">O</div>
+    <p class="contributor-name">Yoav Gochman</p>
+    <p class="contributor-role">LST Analysis, water consumption</p>
+    <p class="contributor-github">github.com/casagochman</p>
+  </a>
+  <a href="https://github.com/hawaiie-star" class="contributor-card">
+    <div class="contributor-avatar" style="background:#7a8152;">O</div>
+    <p class="contributor-name">Waiie Tsang</p>
+    <p class="contributor-role">Literature Review, Narrative Content</p>
+    <p class="contributor-github">github.com/hawaiie-star</p>
+  </a>
+  <a href="https://github.com/Nanxi-lu" class="contributor-card">
+    <div class="contributor-avatar" style="background:#7a8152;">O</div>
+    <p class="contributor-name">Christy Choi</p>
+    <p class="contributor-role">Literature Review, Narrative Content</p>
+    <p class="contributor-github">github.com/Nanxi-lu</p>
+  </a>
+</div>
+
+
 
 ##  References
 Las Vegas Review-Journal (2026) *High court paves way for more parties to challenge ‘nonfunctional grass’ irrigation ban*. Available at: <https://www.reviewjournal.com/news/civil-courts/high-court-paves-way-for-more-parties-to-challenge-nonfunctional-grass-irrigation-ban-3790366/> (Accessed: 23 April 2026).
