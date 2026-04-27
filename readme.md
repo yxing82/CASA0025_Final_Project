@@ -34,6 +34,6 @@ This is a repository for the Las Vegas Valley Turf Tracker.
 | GEE App – Boundary Vector Overlay and Styling (Optimised Permanent Layers) | Yoav, Olivia | | Gemini was used to debug UI code |
 | GEE App – Legend System, Colour Ramps and Dynamic Legend Visibility | Christy, Olivia | Yoav | Gemini was used to refine the colour palette |
 | GEE App – Overall UX Refinement, Responsiveness and Interactivity Polish | Olivia, Christy | | Gemini was used to debug UI code |
-| Project Markdown File and GitHub Pages Documentation | Luke, Christy | | |
+| Project Markdown File and GitHub Pages Documentation | Luke, Christy, Olivia | | Gemini was used to debug content scrolling code |
 
 </details>
