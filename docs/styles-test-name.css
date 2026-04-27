@@ -468,7 +468,8 @@ section[id] {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 16px;
-    margin: 1.5rem 0 2rem;
+    margin: 1.5rem auto 2rem;
+    max-width: 800px;
 }
 
 .contributor-card {
